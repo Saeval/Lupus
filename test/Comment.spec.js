@@ -206,16 +206,20 @@ describe('Game item', () => {
 
     it('should not let two players to have the same name', () => {
         let game = mount(<Game />);
-        let numberOfPlayers = 4;
+        let numberOfPlayers = 6;
 
         goToPlayerNamesScreen(game, numberOfPlayers);
         let playerNamesScreen = game.find('PlayerNamesScreen');
 
         changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
         changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
-        changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
         changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
-        changeElementSettingState(playerNamesScreen.find('#role-3'), 'Lupo', 'change');
+        changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-5'), 'SAW', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#role-2'), 'Lupo', 'change');
+        changeElementSettingState(playerNamesScreen.find('#role-4'), 'Lupo', 'change');
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
 
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
@@ -226,14 +230,13 @@ describe('Game item', () => {
 
     it('should not let wolves select first (empty) option', () => {
         let game = mount(<Game />);
-        let numberOfPlayers = 4;
 
-        goToNightWolvesPhaseScreen(game, numberOfPlayers);
+        goToNightWolvesPhaseScreen(game);
 
         let wolvesScreen = game.find('NightWolvesPhaseScreen');
         expect(wolvesScreen.length).to.equal(1);
-
         wolvesScreen.find('.btn .btn-primary').simulate('click');
+
         expect(game.find('ErrorScreen').length).to.equal(1);
         expect(game.find('ErrorScreen').text()).to.contain('vittima');
         expect(game.find('ErrorScreen').text()).to.contain('valida');
@@ -245,7 +248,7 @@ describe('Game item', () => {
         getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
         expect(getDayPhaseScreen(game).length).to.equal(1);
-        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Alberto', 'change');
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
         getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
         expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
@@ -255,15 +258,14 @@ describe('Game item', () => {
         expect(game.find('ErrorScreen').length).to.equal(1);
     });
 
-    it('should end the game when there are no more commoners', () => {
+    it('should end the game when there are as many commoners as wolves', () => {
         let game = mount(<Game />);
-        let numberOfPlayers = 4;
 
-        goToNightWolvesPhaseScreen(game, numberOfPlayers);
+        goToNightWolvesPhaseScreen(game);
 
         expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
 
-        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupi SAW, Doctor');
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
@@ -271,16 +273,20 @@ describe('Game item', () => {
         expect(getDayPhaseScreen(game).find('option').at(1).text()).to.equal('Manuel');
         expect(getDayPhaseScreen(game).find('option').at(2).text()).to.equal('SAW');
         expect(getDayPhaseScreen(game).find('option').at(3).text()).to.equal('Alberto');
+        expect(getDayPhaseScreen(game).find('option').at(4).text()).to.equal('Doctor');
+        expect(getDayPhaseScreen(game).find('option').at(5).text()).to.equal('Bonny');
         expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Claudio è morto');
 
-        expect(getDayPhaseScreen(game).length).to.equal(1);
-        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Manuel', 'change');
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Bonny', 'change');
         getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
-        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
-        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
-        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Alberto', 'change');
-        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+        expect(game.state('alivePlayers').length).to.equal(4);
+        expect(game.state('alivePlayers')).to.contain('Manuel');
+        expect(game.state('alivePlayers')).to.contain('SAW');
+        expect(game.state('alivePlayers')).to.contain('Alberto');
+        expect(game.state('alivePlayers')).to.contain('Doctor');
+        expect(game.state('alivePlayers')).to.not.contain('Claudio');
+        expect(game.state('alivePlayers')).to.not.contain('Bonny');
 
         expect(game.find('EndGame').length).to.equal(1);
         expect(game.find('EndGame').find('div').text()).to.contain('wolves');
@@ -289,13 +295,13 @@ describe('Game item', () => {
 
     it('should end the game when there are no more wolves', () => {
         let game = mount(<Game />);
-        let numberOfPlayers = 4;
+        let numberOfPlayers = 6;
 
         goToNightWolvesPhaseScreen(game, numberOfPlayers);
 
         expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
 
-        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupi SAW, Doctor');
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
@@ -306,6 +312,14 @@ describe('Game item', () => {
         expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Claudio è morto');
 
         expect(getDayPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
+        getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Bonny', 'change');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Bonny è morto');
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
         getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
@@ -325,15 +339,19 @@ function changeElementSettingState(elementWrapper, valueToInsert, eventToTrigger
     elementWrapper.simulate(eventToTrigger);
 }
 
-function goToNightWolvesPhaseScreen(game, numberOfPlayers) {
-    goToPlayerNamesScreen(game, numberOfPlayers);
+function goToNightWolvesPhaseScreen(game) {
+    goToPlayerNamesScreen(game, 6);
     let playerNamesScreen = game.find('PlayerNamesScreen');
 
     changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Lupo', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-4'), 'Lupo', 'change');
+    playerNamesScreen.find('.confirm-players-button').simulate('click');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
 }

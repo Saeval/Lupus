@@ -131,29 +131,35 @@ class Game extends Component {
 
     handleWolvesChoice(){
         const victim = this.state.wolvesKill;
-        //console.log(`Set ${victim} as wolves' choice`);
+        console.log(`Set ${victim} as wolves' choice`);
         if (!this.isVictimValid(victim))
           return;
 
         const alivePlayers = this.removeFromAlivePlayers(victim);
 
-        if (this.haveWon(alivePlayers))
-            this.goToEndGameScreen('wolves');
+        console.log(`[handleWolvesChoice] alivePlayers: ${alivePlayers}`);
+
+        let winners = this.gameEnded(alivePlayers);
+
+        if (winners)
+            this.goToEndGameScreen(winners);
         else
             this.goToDayPhase();
     }
 
     handleCommonersChoice(){
         const victim = this.state.commonersKill;
-        //console.log(`Set ${victim} as commoners' choice`);
+        console.log(`Set ${victim} as commoners' choice`);
         if (!this.isVictimValid(victim))
             return;
 
         const alivePlayers = this.removeFromAlivePlayers(victim);
 
-        // TODO Se i villici uccidono lasciano in vita l'ultimo lupo, risulta che vincono loro
-        if (this.haveWon(alivePlayers))
-            this.goToEndGameScreen('commoners');
+        // TODO Se i villici, uccidendo, lasciano in vita l'ultimo lupo, risulta che vincono loro
+        let winners = this.gameEnded(alivePlayers);
+
+        if (winners)
+            this.goToEndGameScreen(winners);
         else {
             this.setState({wolvesKill: ''});
             this.goToNightWolvesPhase();
@@ -320,10 +326,13 @@ class Game extends Component {
         );
   }
 
-    haveWon(alivePlayers) {
-        if (this.thereAreNotAnyCommonersLeft(alivePlayers) ||
-            this.thereAreNotAnyWolvesLeft(alivePlayers))
-            return true;
+    gameEnded(alivePlayers) {
+        if (this.wolvesHaveWon(alivePlayers))
+            return 'wolves';
+        if (this.commonersHaveWon(alivePlayers))
+            return 'commoners';
+
+        return false;
     }
 
     goToEndGameScreen(winners) {
@@ -332,30 +341,33 @@ class Game extends Component {
         this.setState({currentPhase: 4});
     }
 
-    // TODO Questa dovrebbe essere "Rimangono tanti lupi quanti villici"
-    thereAreNotAnyCommonersLeft(alivePlayers) {
+    wolvesHaveWon(alivePlayers) {
         const wolfRole = this.state.roles.getRoleByName('lupo');
-        let wolves = [];
-
-        console.log(`PlayerNames: ${this.state.playerNames}`);
-
-        for(let i = 0; i < this.state.playerRoles.length; i++)
-            if (this.state.playerRoles[i] === wolfRole && alivePlayers.includes(this.state.playerNames[i]))
-                wolves.push(this.state.playerNames[i]);
+        const commonerRole = this.state.roles.getDefaultRole();
+        let wolves = this.getAlivePlayersByRole(alivePlayers, wolfRole);
+        let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
 
         console.log(`Wolves: ${wolves}`);
-        console.log(`alivePlayers: ${alivePlayers}`);
+        console.log(`Commoners: ${commoners}`);
 
-        return this.arrayAreEqual(alivePlayers, wolves);
+        return wolves.length >= commoners.length;
     }
 
-    thereAreNotAnyWolvesLeft(alivePlayers) {
-        const commonerRole = this.state.roles.getRoleByName('popolano');
-        let commoners = [];
+    getAlivePlayersByRole(alivePlayers, role) {
+        let result = [];
 
         for(let i = 0; i < this.state.playerRoles.length; i++)
-            if (this.state.playerRoles[i] === commonerRole && alivePlayers.includes(this.state.playerNames[i]))
-                commoners.push(this.state.playerNames[i]);
+            if (this.state.playerRoles[i] === role && alivePlayers.includes(this.state.playerNames[i]))
+                result.push(this.state.playerNames[i]);
+
+        return result;
+    }
+
+    commonersHaveWon(alivePlayers) {
+        const commonerRole = this.state.roles.getDefaultRole();
+        let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
+
+        console.log(`[commonersHaveWon] Commoners: ${commoners}`);
 
         return this.arrayAreEqual(alivePlayers, commoners);
     }
