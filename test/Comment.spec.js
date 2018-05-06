@@ -6,6 +6,7 @@ import PlayerNamesScreen from '../src/Components/PlayerNamesScreen'
 import ErrorScreen from "../src/Components/ErrorScreen";
 import Header from "../src/Components/Header";
 import NightWolvesPhaseScreen from "../src/Components/NightWolvesPhaseScreen";
+import DayPhaseScreen from "../src/Components/DayPhaseScreen";
 
 describe('Header item', () => {
     const title = "A random title";
@@ -102,6 +103,25 @@ describe('NightWolvesPhaseScreen item', () => {
         expect(screen.find('option').at(2).text()).to.equal('Nome2');
         expect(screen.find('option').at(3).text()).to.equal('Nome3');
         expect(screen.find('.col-xs-4').text()).to.contain('Lupo Nome4,');
+    });
+});
+
+describe('DayPhaseScreen item', () => {
+    let screen = mount(<DayPhaseScreen
+                            victim={['Dead']}
+                            alivePlayers={['Nome1', 'Nome2', 'Nome3']}
+                        />);
+
+    it('should show victim', () => {
+        expect(screen.find('.col-xs-4').text()).to.contain('Dead');
+    });
+
+    it('should not contain dead players in select', () => {
+        expect(screen.find('option').length).to.equal(3 + 1);
+        expect(screen.find('option').at(0).text()).to.equal('--');
+        expect(screen.find('option').at(1).text()).to.equal('Nome1');
+        expect(screen.find('option').at(2).text()).to.equal('Nome2');
+        expect(screen.find('option').at(3).text()).to.equal('Nome3');
     });
 });
 

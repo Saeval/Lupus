@@ -20,7 +20,7 @@ class Game extends Component {
         this.handlePlayerDataConfirm = this.handlePlayerDataConfirm.bind(this);
         this.confirmKillSelection = this.confirmKillSelection.bind(this);
         this.handleWolvesChoice = this.handleWolvesChoice.bind(this);
-        this.handlePlayersVictimChoice = this.handlePlayersVictimChoice.bind(this);
+        this.handlePlayersChoice = this.handlePlayersChoice.bind(this);
     }
 
     constructor(){
@@ -83,37 +83,6 @@ class Game extends Component {
             this.setErrorMessage('Selezionare un numero valido di giocatori!');
     }
 
-    setErrorMessage(message){
-        console.log(`Setting error to: ${message}`);
-        this.setState({
-            error: true,
-            errorMessage: message
-        });
-    }
-
-    initializePlayerFields(numberOfPlayers){
-        let tempNames = this.state.playerNames;
-        let tempRoles = this.state.playerRoles;
-
-        if (tempRoles.length === 0)
-            for (let i = 0; i < numberOfPlayers; i++)
-                tempRoles.push(this.state.roles.getDefaultRole());
-
-        this.resetData(numberOfPlayers, tempNames, tempRoles);
-
-        this.setState({ playerNames: tempNames });
-        this.setState({ playerRoles: tempRoles });
-    }
-
-    resetData(numberOfPlayers, tempNames, tempRoles) {
-        if (this.state.playerRoles.length > numberOfPlayers) {
-            for (let i = numberOfPlayers; i < this.state.playerRoles.length; i++) {
-                tempNames[i] = '';
-                tempRoles[i] = this.state.roles.getDefaultRole();
-            }
-        }
-    }
-
     handlePlayerRoleSelection(event){
         let newRoles = this.state.playerRoles;
         let selectedRole = event.target.value;
@@ -146,6 +115,71 @@ class Game extends Component {
         return this.isNumberOfWolvesAcceptable() &&
                this.allPlayersHaveNames() &&
                this.allNamesAreUnique();
+    }
+
+    confirmKillSelection(event){
+        console.log(`${event.target.value} has been chosen as victim`);
+        this.setState({victim: event.target.value });
+    }
+
+    handleWolvesChoice(){
+        if (!this.isVictimValid())
+          return;
+
+        this.removeVictimFromAlivePlayers();
+        this.goToDayPhase();
+    }
+
+    handlePlayersChoice(){
+        if (!this.isVictimValid())
+            return;
+
+        this.removeVictimFromAlivePlayers();
+        this.goToNightWolvesPhase();
+    }
+
+    setErrorMessage(message){
+        console.log(`Setting error to: ${message}`);
+        this.setState({
+            error: true,
+            errorMessage: message
+        });
+    }
+
+    initializePlayerFields(numberOfPlayers){
+        let tempNames = this.state.playerNames;
+        let tempRoles = this.state.playerRoles;
+
+        if (tempRoles.length === 0)
+            for (let i = 0; i < numberOfPlayers; i++)
+                tempRoles.push(this.state.roles.getDefaultRole());
+
+        this.resetData(numberOfPlayers, tempNames, tempRoles);
+
+        this.setState({ playerNames: tempNames });
+        this.setState({ playerRoles: tempRoles });
+    }
+
+    resetData(numberOfPlayers, tempNames, tempRoles) {
+        if (this.state.playerRoles.length > numberOfPlayers) {
+            for (let i = numberOfPlayers; i < this.state.playerRoles.length; i++) {
+                tempNames[i] = '';
+                tempRoles[i] = this.state.roles.getDefaultRole();
+            }
+        }
+    }
+
+    allNamesAreUnique(){
+        let names = this.state.playerNames;
+
+        for(let i = 0; i < names.length; i++) {
+            if(names.filter(item => item !== names[i]).length <= (names.length - 2)) {
+                this.setErrorMessage('Tutti i giocatori devono avere un nome unico!');
+                return false;
+            }
+        }
+
+        return true;
     }
 
     isNumberOfWolvesAcceptable(){
@@ -186,35 +220,7 @@ class Game extends Component {
         return true;
     }
 
-    allNamesAreUnique(){
-        let names = this.state.playerNames;
-
-        for(let i = 0; i < names.length; i++) {
-            if(names.filter(item => item !== names[i]).length <= (names.length - 2)) {
-                this.setErrorMessage('Tutti i giocatori devono avere un nome unico!');
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    confirmKillSelection(event){
-        console.log(`${event.target.value} has been chosen as victim`);
-        this.setState({victim: event.target.value });
-    }
-
-    handleWolvesChoice(){
-        if (!this.validateVictim())
-          return;
-
-        let alivePlayers = this.state.alivePlayers.filter(name => name !== this.state.victim);
-        this.setState({alivePlayers: alivePlayers});
-
-        this.goToDayPhase();
-    }
-
-    validateVictim(){
+    isVictimValid(){
         if (this.state.victim === '') {
             this.setErrorMessage('Selezionare una vittima valida!');
             return false;
@@ -225,10 +231,13 @@ class Game extends Component {
         return true;
     }
 
-    handlePlayersVictimChoice(){
-        console.log("Called");
-    }
+    removeVictimFromAlivePlayers() {
+        let alivePlayers = this.state.alivePlayers.filter(name => name !== this.state.victim);
+        this.setState({alivePlayers: alivePlayers});
 
+        if (this.haveWon())
+            this.goToEndGameScreen();
+    }
 
     render() {
         const maxNumberOfPlayers = 9;
@@ -274,7 +283,8 @@ class Game extends Component {
             returnValue = <DayPhaseScreen
                             victim={this.state.victim}
                             alivePlayers={this.state.alivePlayers}
-                            handlePlayersVictimChoice={this.handlePlayersVictimChoice}
+                            confirmKillSelection={this.confirmKillSelection}
+                            handlePlayersChoice={this.handlePlayersChoice}
                           />;
 
 
@@ -286,6 +296,14 @@ class Game extends Component {
           </div>
         );
   }
+
+    haveWon() {
+        return false;
+    }
+
+    goToEndGameScreen(winners) {
+        console.log(`Congratulations ${winners}!`);
+    }
 }
 
 export default Game;
