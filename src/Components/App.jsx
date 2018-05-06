@@ -20,7 +20,7 @@ class Game extends Component {
         this.handlePlayerDataConfirm = this.handlePlayerDataConfirm.bind(this);
         this.confirmKillSelection = this.confirmKillSelection.bind(this);
         this.handleWolvesChoice = this.handleWolvesChoice.bind(this);
-        this.handlePlayersChoice = this.handlePlayersChoice.bind(this);
+        this.handleCommonersChoice = this.handleCommonersChoice.bind(this);
     }
 
     constructor(){
@@ -31,11 +31,12 @@ class Game extends Component {
             currentPhase: 0,
             selectedNumberOfPlayers: -1,
             error: false,
-            errorMessage: "",
+            errorMessage: '',
             playerNames: [],
             playerRoles: [],
             alivePlayers: [],
-            victim: ""
+            wolvesKill: '',
+            commonersKill: ''
         };
 
         this.setUpHandlers();
@@ -118,23 +119,28 @@ class Game extends Component {
     }
 
     confirmKillSelection(event){
-        console.log(`${event.target.value} has been chosen as victim`);
-        this.setState({victim: event.target.value });
+        //console.log(`${event.target.value} has been chosen as victim`);
+
+        // Questa è usata sia per commoner che per killer
+        this.setState({wolvesKill: event.target.value });
     }
 
     handleWolvesChoice(){
-        if (!this.isVictimValid())
+        const victim = this.state.wolvesKill;
+        if (!this.isVictimValid(victim))
           return;
 
-        this.removeVictimFromAlivePlayers();
+        this.removeFromAlivePlayers(victim);
         this.goToDayPhase();
     }
 
-    handlePlayersChoice(){
-        if (!this.isVictimValid())
+    handleCommonersChoice(){
+        console.log(`${}`);
+        const victim = this.state.commonersKill;
+        if (!this.isVictimValid(victim))
             return;
 
-        this.removeVictimFromAlivePlayers();
+        this.removeFromAlivePlayers(victim);
         this.goToNightWolvesPhase();
     }
 
@@ -220,8 +226,9 @@ class Game extends Component {
         return true;
     }
 
-    isVictimValid(){
-        if (this.state.victim === '') {
+    isVictimValid(victim){
+        //console.log(`isVictimValid: chosen victim ${victim}`);
+        if (victim === undefined) {
             this.setErrorMessage('Selezionare una vittima valida!');
             return false;
         }
@@ -231,8 +238,8 @@ class Game extends Component {
         return true;
     }
 
-    removeVictimFromAlivePlayers() {
-        let alivePlayers = this.state.alivePlayers.filter(name => name !== this.state.victim);
+    removeFromAlivePlayers(victim) {
+        let alivePlayers = this.state.alivePlayers.filter(name => name !== victim);
         this.setState({alivePlayers: alivePlayers});
 
         if (this.haveWon())
@@ -281,10 +288,10 @@ class Game extends Component {
 
         else if (currentPhase === 3)
             returnValue = <DayPhaseScreen
-                            victim={this.state.victim}
+                            wolvesKill={this.state.wolvesKill}
                             alivePlayers={this.state.alivePlayers}
                             confirmKillSelection={this.confirmKillSelection}
-                            handlePlayersChoice={this.handlePlayersChoice}
+                            handleCommonersChoice={this.handleCommonersChoice}
                           />;
 
 
@@ -303,6 +310,10 @@ class Game extends Component {
 
     goToEndGameScreen(winners) {
         console.log(`Congratulations ${winners}!`);
+    }
+
+    lastElementOf(array) {
+        return array[array.length - 1];
     }
 }
 

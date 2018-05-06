@@ -108,11 +108,11 @@ describe('NightWolvesPhaseScreen item', () => {
 
 describe('DayPhaseScreen item', () => {
     let screen = mount(<DayPhaseScreen
-                            victim={['Dead']}
+                            wolvesKill={['Dead']}
                             alivePlayers={['Nome1', 'Nome2', 'Nome3']}
                         />);
 
-    it('should show victim', () => {
+    it('should show wolvesKill', () => {
         expect(screen.find('.col-xs-4').text()).to.contain('Dead');
     });
 
@@ -232,7 +232,6 @@ describe('Game item', () => {
         let wolvesScreen = game.find('NightWolvesPhaseScreen');
         expect(wolvesScreen.length).to.equal(1);
 
-        changeElementSettingState(wolvesScreen.find('select'), '--', 'change');
         wolvesScreen.find('.btn .btn-primary').simulate('click');
         expect(game.find('ErrorScreen').length).to.equal(1);
         expect(game.find('ErrorScreen').text()).to.contain('vittima');
