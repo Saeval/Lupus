@@ -241,6 +241,37 @@ describe('Game item', () => {
 
         expect(game.find('NightWolvesPhaseScreen').length).to.equal(1);
     });
+
+    it('should end the game when there are no more commoners', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 4;
+
+        goToNightWolvesPhaseScreen(game, numberOfPlayers);
+
+        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+
+        expect(getDayPhaseScreen(game).find('option').at(0).text()).to.equal('--');
+        expect(getDayPhaseScreen(game).find('option').at(1).text()).to.equal('Manuel');
+        expect(getDayPhaseScreen(game).find('option').at(2).text()).to.equal('Alberto');
+        expect(getDayPhaseScreen(game).find('option').at(3).text()).to.equal('SAW');
+        expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Claudio è morto');
+
+        expect(getDayPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Manuel', 'change');
+        getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Alberto', 'change');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(game.find('EndGame').length).to.equal(1);
+        //expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain(1);
+    });
 });
 
 function goToPlayerNamesScreen(game, numberOfPlayers) {
@@ -264,4 +295,12 @@ function goToNightWolvesPhaseScreen(game, numberOfPlayers) {
     changeElementSettingState(playerNamesScreen.find('#role-3'), 'Lupo', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
+}
+
+function getDayPhaseScreen(game) {
+    return game.find('DayPhaseScreen');
+}
+
+function getNightWolvesPhaseScreen(game) {
+    return game.find('NightWolvesPhaseScreen');
 }

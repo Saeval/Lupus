@@ -6,6 +6,7 @@ import Header from "./Header";
 import Roles from "./Roles";
 import NightWolvesPhaseScreen from "./NightWolvesPhaseScreen"
 import DayPhaseScreen from "./DayPhaseScreen"
+import EndGame from "./EndGame";
 //import './fonts/glyphicons-halflings-regular.eot';
 
 class Game extends Component {
@@ -43,23 +44,23 @@ class Game extends Component {
     }
 
     goToPlayerDataScreen(){
-        console.log(`Setting phase to: 1`);
+        //console.log(`Setting phase to: 1`);
         this.setState({currentPhase: 1});
     }
 
     goToPreviousPhase(){
         let newIndex = this.state.currentPhase - 1;
-        console.log(`Setting phase to: ${newIndex}`);
+        //console.log(`Setting phase to: ${newIndex}`);
         this.setState({currentPhase: newIndex});
     }
 
     goToNightWolvesPhase(){
-        console.log(`Setting phase to: 2`);
+        //console.log(`Setting phase to: 2`);
         this.setState({currentPhase: 2});
     }
 
     goToDayPhase(){
-        console.log(`Setting phase to: 3`);
+        //console.log(`Setting phase to: 3`);
         this.setState({currentPhase: 3});
     }
 
@@ -129,7 +130,7 @@ class Game extends Component {
 
     handleWolvesChoice(){
         const victim = this.state.wolvesKill;
-        console.log(`Set ${victim} as wolves' choice`);
+        //console.log(`Set ${victim} as wolves' choice`);
         if (!this.isVictimValid(victim))
           return;
 
@@ -139,7 +140,7 @@ class Game extends Component {
 
     handleCommonersChoice(){
         const victim = this.state.commonersKill;
-        console.log(`Set ${victim} as commoners' choice`);
+        //console.log(`Set ${victim} as commoners' choice`);
         if (!this.isVictimValid(victim))
             return;
 
@@ -148,7 +149,7 @@ class Game extends Component {
     }
 
     setErrorMessage(message){
-        console.log(`Setting error to: ${message}`);
+        //console.log(`Setting error to: ${message}`);
         this.setState({
             error: true,
             errorMessage: message
@@ -245,7 +246,7 @@ class Game extends Component {
         let alivePlayers = this.state.alivePlayers.filter(name => name !== victim);
         this.setState({alivePlayers: alivePlayers});
 
-        if (this.haveWon())
+        if (this.haveWon(alivePlayers))
             this.goToEndGameScreen();
     }
 
@@ -297,7 +298,8 @@ class Game extends Component {
                             handleCommonersChoice={this.handleCommonersChoice}
                           />;
 
-
+        else if (currentPhase === 4)
+            returnValue = <EndGame message={'Congratulations, you won!'}/>;
 
         return (
           <div className="col-xs-12">
@@ -307,17 +309,34 @@ class Game extends Component {
         );
   }
 
-    haveWon() {
-        if (this.thereAreNotAnyCommonersLeft());
-            // TODO Wolves have won
+    haveWon(alivePlayers) {
+        if (this.thereAreNotAnyCommonersLeft(alivePlayers))
+            this.goToEndGameScreen('wolves');
     }
 
     goToEndGameScreen(winners) {
-        console.log(`Congratulations ${winners}!`);
+        console.log(`*** CONGRATULATIONS ${winners}! ***`);
+        this.setState({currentPhase: 4});
     }
 
-    thereAreNotAnyCommonersLeft(){
-        return this.state.alivePlayers.
+    thereAreNotAnyCommonersLeft(alivePlayers) {
+        let wolves = [];
+        let wolfRole = this.state.roles.getRoleByName('lupo');
+
+        // TODO Questa logica non regge, alivePlayers[i] può non essere il giocatore associato a playerRoles[i]
+        for(let i = 0; i < this.state.playerRoles.length; i++)
+            if (this.state.playerRoles[i] === wolfRole && alivePlayers.includes(this.state.playerNames[i]))
+                wolves.push(this.state.playerNames[i]);
+
+        console.log(`Wolves: ${wolves}`);
+        console.log(`alivePlayers: ${alivePlayers}`);
+
+        return this.arrayAreEqual(alivePlayers, wolves);
+    }
+
+    arrayAreEqual(a1, a2) {
+        return a1.length === a2.length &&
+               a1.every(element => a2.includes(element));
     }
 
     lastElementOf(array) {
