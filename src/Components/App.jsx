@@ -5,6 +5,8 @@ import ErrorScreen from "./ErrorScreen";
 import Header from "./Header";
 import Roles from "./Roles";
 import GameStates from "./GameStates";
+import NightWolvesPhaseScreen from "./NightWolvesPhaseScreen"
+import DayPhaseScreen from "./DayPhaseScreen"
 //import './fonts/glyphicons-halflings-regular.eot';
 
 class Game extends Component {
@@ -16,6 +18,8 @@ class Game extends Component {
         this.handlePlayerRoleSelection = this.handlePlayerRoleSelection.bind(this);
         this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
         this.handlePlayerDataConfirm = this.handlePlayerDataConfirm.bind(this);
+        this.confirmKillSelection = this.confirmKillSelection.bind(this);
+        this.handleWolvesChoice = this.handleWolvesChoice.bind(this);
     }
 
     constructor(){
@@ -29,7 +33,8 @@ class Game extends Component {
             error: false,
             errorMessage: "",
             playerNames: [],
-            playerRoles: []
+            playerRoles: [],
+            victim: ""
         };
 
         this.setUpHandlers();
@@ -43,6 +48,14 @@ class Game extends Component {
     goToPreviousPhase(){
         let newIndex = this.state.currentPhaseIndex - 1;
         this.setState({currentPhaseIndex: newIndex});
+    }
+
+    goToNightWolvesPhase(){
+      this.setState({currentPhaseIndex: 2});
+    }
+
+    goToDayPhase(){
+      this.setState({currentPhaseIndex: 3});
     }
 
     goBackToSelection(){
@@ -116,7 +129,7 @@ class Game extends Component {
 
     handlePlayerDataConfirm(){
         this.validate();
-        this.goToNextPhase();
+        this.goToNightWolvesPhase();
     }
 
     validate(){
@@ -152,6 +165,20 @@ class Game extends Component {
         }
     }
 
+    confirmKillSelection(event){
+      console.log(`${event.target.value} has been chosen as victim`);
+      this.setState({victim: event.target.value });
+    }
+
+    handleWolvesChoice(){
+      this.validateVictim();
+      this.goToDayPhase();
+    }
+
+    validateVictim(){
+      // TODO quando ci saranno altri ruoli
+    }
+
 
     render() {
         const maxNumberOfPlayers = 9;
@@ -185,7 +212,18 @@ class Game extends Component {
                           />;
 
         else if (this.state.phases[this.state.currentPhaseIndex] === this.state.phases[2])
-            returnValue = <div className={"jumbotron"}>TO CONTINUE...</div>
+            returnValue = <NightWolvesPhaseScreen
+                            numberOfPlayers={this.state.selectedNumberOfPlayers}
+                            playerNames={this.state.playerNames}
+                            playerRoles={this.state.playerRoles}
+                            confirmKillSelection={this.confirmKillSelection}
+                            handleWolvesChoice={this.handleWolvesChoice}
+                          />
+        else if (this.state.phases[this.state.currentPhaseIndex] === this.state.phases[3])
+            returnValue = <DayPhaseScreen
+                            victim={this.state.victim}
+                            players={this.state.playerNames}
+                          />
 
 
 

@@ -113,10 +113,10 @@ describe('Game item', () => {
 
         expect(game.state('playerRoles')[0]).to.equal('Popolano');
 
-        changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'input');
-        changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'input');
-        changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'input');
-        changeElementSettingState(playerNamesScreen.find('#name-3'), 'SAW', 'input');
+        changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'keyUp');
+        changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'keyUp');
+        changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'keyUp');
+        changeElementSettingState(playerNamesScreen.find('#name-3'), 'SAW', 'keyUp');
 
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 

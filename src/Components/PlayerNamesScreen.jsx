@@ -24,7 +24,7 @@ class PlayerNamesScreen extends Component {
                            key={i}
                            id={"name-" + i}
                            className="left-margin field"
-                           onInput={this.props.handlePlayerNameChange}
+                           onBlur={this.props.handlePlayerNameChange}
                            defaultValue={this.props.playersNames !== [] ? this.props.playerNames[i] : ""}
                     />
                 </div>
@@ -37,14 +37,14 @@ class PlayerNamesScreen extends Component {
 
         for(let i = 0; i < this.props.selectedNumberOfPlayers; i++){
             this.state.playersRoles.push(
-            <div key={"select-container-" + i}>
-                <select key={"select-role-" + i}
-                        id={"role-" + i}
+            <div key={`select-container-${i}`}>
+                <select key={`select-role-${i}`}
+                        id={`role-${i}`}
                         className="field text-select-width"
                         onChange={this.props.handlePlayerRoleSelection}
                         defaultValue={this.props.playerRoles !== undefined ? this.props.playerRoles[i] : supportedRoles[0]}
                 >
-                    {supportedRoles.map(role => <option key={"role-" + role + "-" + i} value={role}>{role}</option>)}
+                    {supportedRoles.map(role => <option key={`role-${role}-${i}`} value={role}>{role}</option>)}
                 </select>
             </div>
             )
