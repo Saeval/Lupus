@@ -121,12 +121,15 @@ class Game extends Component {
     confirmKillSelection(event){
         //console.log(`${event.target.value} has been chosen as victim`);
 
-        // Questa è usata sia per commoner che per killer
-        this.setState({wolvesKill: event.target.value });
+        if(this.state.currentPhase === 2)
+            this.setState({wolvesKill: event.target.value });
+        else if(this.state.currentPhase === 3)
+            this.setState({commonersKill: event.target.value });
     }
 
     handleWolvesChoice(){
         const victim = this.state.wolvesKill;
+        console.log(`Set ${victim} as wolves' choice`);
         if (!this.isVictimValid(victim))
           return;
 
@@ -135,8 +138,8 @@ class Game extends Component {
     }
 
     handleCommonersChoice(){
-        console.log(`${}`);
         const victim = this.state.commonersKill;
+        console.log(`Set ${victim} as commoners' choice`);
         if (!this.isVictimValid(victim))
             return;
 
@@ -227,8 +230,8 @@ class Game extends Component {
     }
 
     isVictimValid(victim){
-        //console.log(`isVictimValid: chosen victim ${victim}`);
-        if (victim === undefined) {
+        console.log(`isVictimValid: chosen victim ${victim}`);
+        if (victim === undefined || victim === '') {
             this.setErrorMessage('Selezionare una vittima valida!');
             return false;
         }
@@ -305,11 +308,16 @@ class Game extends Component {
   }
 
     haveWon() {
-        return false;
+        if (this.thereAreNotAnyCommonersLeft());
+            // TODO Wolves have won
     }
 
     goToEndGameScreen(winners) {
         console.log(`Congratulations ${winners}!`);
+    }
+
+    thereAreNotAnyCommonersLeft(){
+        return this.state.alivePlayers.
     }
 
     lastElementOf(array) {
