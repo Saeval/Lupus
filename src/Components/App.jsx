@@ -23,6 +23,7 @@ class Game extends Component {
 
         this.state = {
             phases: new GameStates().getStates(),
+            roles: new Roles(),
             currentPhaseIndex: 0,
             selectedNumberOfPlayers: -1,
             error: false,
@@ -48,15 +49,20 @@ class Game extends Component {
         this.goToPreviousPhase();
         this.setState({
             error: false,
-            errorMessage: ""
+            errorMessage: ''
         });
+    }
+
+    handleNumberOfPlayersSelection(event){
+        this.setState({ selectedNumberOfPlayers: event.target.value });
+        this.initializePlayerFields(event.target.value);
     }
 
     handleNumberOfPlayersConfirm(){
         if (this.state.selectedNumberOfPlayers > 3)
             this.goToNextPhase();
         else
-            this.setErrorMessage("Selezionare un numero valido di giocatori!");
+            this.setErrorMessage('Selezionare un numero valido di giocatori!');
     }
 
     setErrorMessage(message){
@@ -66,18 +72,13 @@ class Game extends Component {
         });
     }
 
-    handleNumberOfPlayersSelection(event){
-        this.setState({ selectedNumberOfPlayers: event.target.value });
-        this.initializePlayerFields(event.target.value);
-    }
-
     initializePlayerFields(numberOfPlayers){
         let tempNames = this.state.playerNames;
         let tempRoles = this.state.playerRoles;
 
         if (tempRoles.length === 0)
             for (let i = 0; i < numberOfPlayers; i++)
-                tempRoles.push(new Roles().getDefaultRole());
+                tempRoles.push(this.state.roles.getDefaultRole());
 
         this.resetData(numberOfPlayers, tempNames, tempRoles);
 
@@ -88,8 +89,8 @@ class Game extends Component {
     resetData(numberOfPlayers, tempNames, tempRoles) {
         if (this.state.playerRoles.length > numberOfPlayers) {
             for (let i = numberOfPlayers; i < this.state.playerRoles.length; i++) {
-                tempNames[i] = "";
-                tempRoles[i] = new Roles().getDefaultRole();
+                tempNames[i] = '';
+                tempRoles[i] = this.state.roles.getDefaultRole();
             }
         }
     }
@@ -120,7 +121,7 @@ class Game extends Component {
 
     validate(){
         this.isNumberOfWolvesAcceptable();
-        this.allPlayerHaveNames();
+        this.allPlayersHaveNames();
 
         return true;
     }
@@ -130,18 +131,18 @@ class Game extends Component {
         const maxNumberOfWolves = Math.round(this.state.selectedNumberOfPlayers / 3);
 
         for(let i = 0; i < this.state.selectedNumberOfPlayers; i++) {
-            if (this.state.playerRoles[i].toLowerCase() === 'lupo')
+            if (this.state.playerRoles[i] === this.state.roles.getRoleByName('lupo'))
                 wolves++;
         }
 
         if (wolves === 0)
-            this.setErrorMessage("Ci deve essere almeno un lupo!");
+            this.setErrorMessage('Ci deve essere almeno un lupo!');
 
         if (wolves > maxNumberOfWolves)
             this.setErrorMessage('Ci sono troppi lupi per il numero di giocatori selezionato!');
     }
 
-    allPlayerHaveNames(){
+    allPlayersHaveNames(){
         if (this.state.playerNames.length === 0)
             this.setErrorMessage('Tutti i giocatori devono avere un nome!');
 
@@ -153,8 +154,8 @@ class Game extends Component {
 
 
     render() {
-        const maxNumberOfPlayers = 6;
-        const headerTitle = "Welcome to Lupus in Fabula!";
+        const maxNumberOfPlayers = 9;
+        const headerTitle = 'Welcome to Lupus in Fabula!';
 
         let returnValue;
 

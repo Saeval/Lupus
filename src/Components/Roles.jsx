@@ -5,12 +5,11 @@ class Roles extends Component {
         super();
         this.state = {
             roles: [
-                "Popolano",
-                "Lupo"
+                'Popolano',
+                'Lupo'
             ]
         };
     }
-
 
     getRoles(){
         return this.state.roles;
@@ -18,6 +17,13 @@ class Roles extends Component {
 
     getDefaultRole(){
         return this.state.roles[0];
+    }
+
+    getRoleByName(roleName){
+      for(let i = 0; i < this.state.roles.length; i++)
+        if (this.state.roles[i].toLowerCase() === roleName.toLowerCase()) return this.state.roles[i];
+
+      return 'Ruolo non presente';
     }
 }
 
