@@ -93,6 +93,7 @@ describe('PlayerNamesScreen item', () => {
 describe('NightWolvesPhaseScreen item', () => {
     let screen = mount(<NightWolvesPhaseScreen
                             alivePlayers={['Nome1', 'Nome2', 'Nome3', 'Nome4']}
+                            playerNames={['Nome1', 'Nome2', 'Nome3', 'Nome4']}
                             playerRoles={['Popolano', 'Popolano', 'Popolano', 'Lupo']}
                         />);
 
@@ -239,7 +240,19 @@ describe('Game item', () => {
 
         game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
 
-        expect(game.find('NightWolvesPhaseScreen').length).to.equal(1);
+        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getDayPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Alberto', 'change');
+        getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+        expect(getNightWolvesPhaseScreen(game).find('option').at(0).text()).to.equal('--');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(game.find('ErrorScreen').length).to.equal(1);
     });
 
     it('should end the game when there are no more commoners', () => {
@@ -254,11 +267,10 @@ describe('Game item', () => {
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
-
         expect(getDayPhaseScreen(game).find('option').at(0).text()).to.equal('--');
         expect(getDayPhaseScreen(game).find('option').at(1).text()).to.equal('Manuel');
-        expect(getDayPhaseScreen(game).find('option').at(2).text()).to.equal('Alberto');
-        expect(getDayPhaseScreen(game).find('option').at(3).text()).to.equal('SAW');
+        expect(getDayPhaseScreen(game).find('option').at(2).text()).to.equal('SAW');
+        expect(getDayPhaseScreen(game).find('option').at(3).text()).to.equal('Alberto');
         expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Claudio è morto');
 
         expect(getDayPhaseScreen(game).length).to.equal(1);
@@ -266,11 +278,40 @@ describe('Game item', () => {
         getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
         expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Alberto', 'change');
         getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 
         expect(game.find('EndGame').length).to.equal(1);
-        //expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain(1);
+        expect(game.find('EndGame').find('div').text()).to.contain('wolves');
+        expect(game.find('EndGame').find('div').text()).to.contain('won');
+    });
+
+    it('should end the game when there are no more wolves', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 4;
+
+        goToNightWolvesPhaseScreen(game, numberOfPlayers);
+
+        expect(getNightWolvesPhaseScreen(game).length).to.equal(1);
+
+        expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Lupo SAW');
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        getNightWolvesPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(getDayPhaseScreen(game).find('option').at(0).text()).to.equal('--');
+        expect(getDayPhaseScreen(game).find('option').at(1).text()).to.equal('Manuel');
+        expect(getDayPhaseScreen(game).find('option').at(2).text()).to.equal('SAW');
+        expect(getDayPhaseScreen(game).find('option').at(3).text()).to.equal('Alberto');
+        expect(getDayPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Claudio è morto');
+
+        expect(getDayPhaseScreen(game).length).to.equal(1);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
+        getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
+
+        expect(game.find('EndGame').length).to.equal(1);
+        expect(game.find('EndGame').find('div').text()).to.contain('commoners');
+        expect(game.find('EndGame').find('div').text()).to.contain('won');
     });
 });
 
@@ -290,9 +331,9 @@ function goToNightWolvesPhaseScreen(game, numberOfPlayers) {
 
     changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-3'), 'SAW', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#role-3'), 'Lupo', 'change');
+    changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#role-2'), 'Lupo', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
 }

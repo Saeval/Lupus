@@ -13,11 +13,13 @@ class NightWolvesPhaseScreen extends Component {
 
     getAliveWolves(){
         let wolves = [];
-        let wolfRole = new Roles().getRoleByName('lupo');
+        const alivePlayers = this.props.alivePlayers;
+        const playerNames = this.props.playerNames;
+        const wolfRole = new Roles().getRoleByName('lupo');
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
-            if (this.props.playerRoles[i] === wolfRole)
-                wolves.push(this.props.alivePlayers[i]);
+            if (this.props.playerRoles[i] === wolfRole && alivePlayers.includes(playerNames[i]))
+                wolves.push(playerNames[i]);
 
         console.log(`Set wolves to: ${wolves}`);
 

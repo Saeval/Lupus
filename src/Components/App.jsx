@@ -37,7 +37,8 @@ class Game extends Component {
             playerRoles: [],
             alivePlayers: [],
             wolvesKill: '',
-            commonersKill: ''
+            commonersKill: '',
+            winnerMessage: ''
         };
 
         this.setUpHandlers();
@@ -134,8 +135,12 @@ class Game extends Component {
         if (!this.isVictimValid(victim))
           return;
 
-        this.removeFromAlivePlayers(victim);
-        this.goToDayPhase();
+        const alivePlayers = this.removeFromAlivePlayers(victim);
+
+        if (this.haveWon(alivePlayers))
+            this.goToEndGameScreen('wolves');
+        else
+            this.goToDayPhase();
     }
 
     handleCommonersChoice(){
@@ -144,8 +149,15 @@ class Game extends Component {
         if (!this.isVictimValid(victim))
             return;
 
-        this.removeFromAlivePlayers(victim);
-        this.goToNightWolvesPhase();
+        const alivePlayers = this.removeFromAlivePlayers(victim);
+
+        // TODO Se i villici uccidono lasciano in vita l'ultimo lupo, risulta che vincono loro
+        if (this.haveWon(alivePlayers))
+            this.goToEndGameScreen('commoners');
+        else {
+            this.setState({wolvesKill: ''});
+            this.goToNightWolvesPhase();
+        }
     }
 
     setErrorMessage(message){
@@ -245,9 +257,7 @@ class Game extends Component {
     removeFromAlivePlayers(victim) {
         let alivePlayers = this.state.alivePlayers.filter(name => name !== victim);
         this.setState({alivePlayers: alivePlayers});
-
-        if (this.haveWon(alivePlayers))
-            this.goToEndGameScreen();
+        return alivePlayers;
     }
 
     render() {
@@ -286,6 +296,7 @@ class Game extends Component {
             returnValue = <NightWolvesPhaseScreen
                             alivePlayers={this.state.alivePlayers}
                             playerRoles={this.state.playerRoles}
+                            playerNames={this.state.playerNames}
                             confirmKillSelection={this.confirmKillSelection}
                             handleWolvesChoice={this.handleWolvesChoice}
                           />;
@@ -299,7 +310,7 @@ class Game extends Component {
                           />;
 
         else if (currentPhase === 4)
-            returnValue = <EndGame message={'Congratulations, you won!'}/>;
+            returnValue = <EndGame message={this.state.winnerMessage}/>;
 
         return (
           <div className="col-xs-12">
@@ -310,20 +321,24 @@ class Game extends Component {
   }
 
     haveWon(alivePlayers) {
-        if (this.thereAreNotAnyCommonersLeft(alivePlayers))
-            this.goToEndGameScreen('wolves');
+        if (this.thereAreNotAnyCommonersLeft(alivePlayers) ||
+            this.thereAreNotAnyWolvesLeft(alivePlayers))
+            return true;
     }
 
     goToEndGameScreen(winners) {
         console.log(`*** CONGRATULATIONS ${winners}! ***`);
+        this.setWinnerMessage(winners);
         this.setState({currentPhase: 4});
     }
 
+    // TODO Questa dovrebbe essere "Rimangono tanti lupi quanti villici"
     thereAreNotAnyCommonersLeft(alivePlayers) {
+        const wolfRole = this.state.roles.getRoleByName('lupo');
         let wolves = [];
-        let wolfRole = this.state.roles.getRoleByName('lupo');
 
-        // TODO Questa logica non regge, alivePlayers[i] può non essere il giocatore associato a playerRoles[i]
+        console.log(`PlayerNames: ${this.state.playerNames}`);
+
         for(let i = 0; i < this.state.playerRoles.length; i++)
             if (this.state.playerRoles[i] === wolfRole && alivePlayers.includes(this.state.playerNames[i]))
                 wolves.push(this.state.playerNames[i]);
@@ -334,13 +349,25 @@ class Game extends Component {
         return this.arrayAreEqual(alivePlayers, wolves);
     }
 
+    thereAreNotAnyWolvesLeft(alivePlayers) {
+        const commonerRole = this.state.roles.getRoleByName('popolano');
+        let commoners = [];
+
+        for(let i = 0; i < this.state.playerRoles.length; i++)
+            if (this.state.playerRoles[i] === commonerRole && alivePlayers.includes(this.state.playerNames[i]))
+                commoners.push(this.state.playerNames[i]);
+
+        return this.arrayAreEqual(alivePlayers, commoners);
+    }
+
+    setWinnerMessage(winner){
+        const winnerMessage = `${winner} have won!`;
+        this.setState({winnerMessage: winnerMessage});
+    }
+
     arrayAreEqual(a1, a2) {
         return a1.length === a2.length &&
                a1.every(element => a2.includes(element));
-    }
-
-    lastElementOf(array) {
-        return array[array.length - 1];
     }
 }
 
