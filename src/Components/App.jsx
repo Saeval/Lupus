@@ -131,13 +131,13 @@ class Game extends Component {
 
     handleWolvesChoice(){
         const victim = this.state.wolvesKill;
-        console.log(`Set ${victim} as wolves' choice`);
+        //console.log(`Set ${victim} as wolves' choice`);
         if (!this.isVictimValid(victim))
           return;
 
         const alivePlayers = this.removeFromAlivePlayers(victim);
 
-        console.log(`[handleWolvesChoice] alivePlayers: ${alivePlayers}`);
+        //console.log(`[handleWolvesChoice] alivePlayers: ${alivePlayers}`);
 
         let winners = this.gameEnded(alivePlayers);
 
@@ -149,7 +149,7 @@ class Game extends Component {
 
     handleCommonersChoice(){
         const victim = this.state.commonersKill;
-        console.log(`Set ${victim} as commoners' choice`);
+        //console.log(`Set ${victim} as commoners' choice`);
         if (!this.isVictimValid(victim))
             return;
 
@@ -249,7 +249,7 @@ class Game extends Component {
     }
 
     isVictimValid(victim){
-        console.log(`isVictimValid: chosen victim ${victim}`);
+        //console.log(`isVictimValid: chosen victim ${victim}`);
         if (victim === undefined || victim === '') {
             this.setErrorMessage('Selezionare una vittima valida!');
             return false;
@@ -336,7 +336,7 @@ class Game extends Component {
     }
 
     goToEndGameScreen(winners) {
-        console.log(`*** CONGRATULATIONS ${winners}! ***`);
+        //console.log(`*** CONGRATULATIONS ${winners}! ***`);
         this.setWinnerMessage(winners);
         this.setState({currentPhase: 4});
     }
@@ -347,8 +347,8 @@ class Game extends Component {
         let wolves = this.getAlivePlayersByRole(alivePlayers, wolfRole);
         let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
 
-        console.log(`Wolves: ${wolves}`);
-        console.log(`Commoners: ${commoners}`);
+        //console.log(`Wolves: ${wolves}`);
+        //console.log(`Commoners: ${commoners}`);
 
         return wolves.length >= commoners.length;
     }
@@ -367,7 +367,7 @@ class Game extends Component {
         const commonerRole = this.state.roles.getDefaultRole();
         let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
 
-        console.log(`[commonersHaveWon] Commoners: ${commoners}`);
+        //console.log(`[commonersHaveWon] Commoners: ${commoners}`);
 
         return this.arrayAreEqual(alivePlayers, commoners);
     }
