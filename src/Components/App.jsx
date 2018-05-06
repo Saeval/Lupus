@@ -264,7 +264,6 @@ class Game extends Component {
 
         else if (currentPhase === 2)
             returnValue = <NightWolvesPhaseScreen
-                            numberOfPlayers={this.state.selectedNumberOfPlayers}
                             alivePlayers={this.state.alivePlayers}
                             playerRoles={this.state.playerRoles}
                             confirmKillSelection={this.confirmKillSelection}

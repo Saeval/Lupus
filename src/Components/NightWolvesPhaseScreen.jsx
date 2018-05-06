@@ -9,24 +9,35 @@ class NightWolvesPhaseScreen extends Component {
             commoners: [],
             wolves: []
         };
+
+        this.fillWolves();
+        this.fillCommoners();
     }
 
-    getWolvesNames(){
+    fillWolves(){
         let wolves = [];
+        let wolfRole = new Roles().getRoleByName('lupo');
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
-            if (this.props.playerRoles[i] === new Roles().getRoleByName('lupo'))
+            if (this.props.playerRoles[i] === wolfRole)
                 wolves.push(this.props.alivePlayers[i]);
 
-        return wolves;
+        this.setState({wolves: wolves});
+
+        console.log(`Set wolves to: ${wolves}`);
+    }
+
+    fillCommoners(){
+        let wolves = this.state.wolves;
+        let commoners = this.props.alivePlayers.filter(player => wolves.includes(player));
+
+        this.setState({commoners: commoners});
+
+        console.log(`Set commoners to: ${commoners}`);
     }
 
     getCommoners(){
-        let commoners = [];
-
-        for(let i = 0; i < this.props.playerRoles.length; i++)
-            if (this.props.playerRoles[i] === new Roles().getDefaultRole())
-                commoners.push(this.props.alivePlayers[i]);
+        let commoners = this.state.commoners;
 
             let result =
             <select className="field text-select-width" onChange={this.props.confirmKillSelection}>
@@ -38,10 +49,10 @@ class NightWolvesPhaseScreen extends Component {
     }
 
     render() {
-        let wolvesNames = this.getWolvesNames();
-        let killSomeoneText = wolvesNames.length === 1 ?
-                            `Lupo ${wolvesNames[0]}, decidi chi accoppare` :
-                            `Lupi ${wolvesNames.join(', ')}, accordatevi sul chi accoppare`;
+        let wolves = this.state.wolves;
+        let killSomeoneText = wolves.length === 1 ?
+                            `Lupo ${wolves[0]}, decidi chi accoppare` :
+                            `Lupi ${wolves.join(', ')}, accordatevi sul chi accoppare`;
         return (
           <div className="col-xs-12 col-xs-offset-3">
               <div className="col-xs-4">

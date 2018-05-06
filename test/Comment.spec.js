@@ -91,7 +91,6 @@ describe('PlayerNamesScreen item', () => {
 
 describe('NightWolvesPhaseScreen item', () => {
     let screen = mount(<NightWolvesPhaseScreen
-                            numberOfPlayers={4}
                             alivePlayers={['Nome1', 'Nome2', 'Nome3', 'Nome4']}
                             playerRoles={['Popolano', 'Popolano', 'Popolano', 'Lupo']}
                         />);
@@ -121,7 +120,7 @@ describe('Game item', () => {
         expect(game.find('input').length).to.equal(numberOfPlayers);
     });
 
-    it('should dataAreValid roles considering number of players', () => {
+    it('should validate roles considering number of players', () => {
         let game = mount(<Game />);
         let numberOfPlayers = 4;
 
