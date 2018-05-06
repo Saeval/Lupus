@@ -7,7 +7,7 @@ class ErrorScreen extends Component {
         return (
             <div className="col-xs-12">
                 <div className="big-text text-danger col-xs-3 col-xs-offset-4">{this.props.errorMessage}</div>
-                <BackToSelectionButton className="btn btn-danger col-xs-1" goBackToSelection={this.props.goBackToSelection}/>
+                <BackToSelectionButton className="btn btn-danger col-xs-1" goBack={this.props.goBack}/>
             </div>
         );
     }

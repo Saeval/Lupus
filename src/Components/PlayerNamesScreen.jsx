@@ -67,7 +67,8 @@ class PlayerNamesScreen extends Component {
                     </button>
                 </div>
                 <div className="col-xs-4">
-                    <BackToSelectionButton className="col-xs-5 btn btn-warning top-margin go-back-players-button" goBackToSelection={this.props.goBackToSelection}/>
+                    <BackToSelectionButton className="col-xs-5 btn btn-warning top-margin go-back-players-button"
+                                           goBack={this.props.goBack}/>
                 </div>
             </div>
         );
