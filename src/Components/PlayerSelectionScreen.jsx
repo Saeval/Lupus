@@ -5,9 +5,9 @@ class PlayerSelectionScreen extends Component {
         if (players < 4)
             return null;
 
-        var options = [];
+        let options = [];
         options.push(<option key={-1} value={-1}>--</option>);
-        for (var i = 4; i <= players; i++) {
+        for (let i = 4; i <= players; i++) {
             options.push(
                 <option key={i} value={i}>
                     {i}

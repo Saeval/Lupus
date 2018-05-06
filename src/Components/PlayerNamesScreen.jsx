@@ -25,6 +25,7 @@ class PlayerNamesScreen extends Component {
                            id={"name-" + i}
                            className="left-margin field"
                            onInput={this.props.handlePlayerNameChange}
+                           defaultValue={this.props.playersNames !== [] ? this.props.playerNames[i] : ""}
                     />
                 </div>
             )
@@ -41,6 +42,7 @@ class PlayerNamesScreen extends Component {
                         id={"role-" + i}
                         className="field text-select-width"
                         onChange={this.props.handlePlayerRoleSelection}
+                        defaultValue={this.props.playerRoles !== undefined ? this.props.playerRoles[i] : supportedRoles[0]}
                 >
                     {supportedRoles.map(role => <option key={"role-" + role + "-" + i} value={role}>{role}</option>)}
                 </select>

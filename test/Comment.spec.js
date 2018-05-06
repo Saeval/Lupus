@@ -5,6 +5,7 @@ import Game from '../src/Components/App';
 import PlayerNamesScreen from '../src/Components/PlayerNamesScreen'
 import ErrorScreen from "../src/Components/ErrorScreen";
 import Header from "../src/Components/Header";
+import GameStates from "../src/Components/GameStates";
 
 describe('Header item', () => {
     const title = "A random title";
@@ -23,19 +24,20 @@ describe('BackToSelection item', () => {
         expect(backToSelection.type()).to.equal('button');
     });
 
-    it('should reset state', () => {
+    it('should go to previous phase', () => {
         game.instance().setState({
-            confirmedSelection: true,
+            currentPhaseIndex: 1,
             error: true,
             errorMessage: "Not empty"
         });
 
-    backToSelection.simulate('click');
+        backToSelection.simulate('click');
 
-    expect(game.state('error')).to.be.false;
-    expect(game.state('confirmedSelection')).to.be.false;
-    expect(game.state('errorMessage')).to.be.empty;
-  });
+        expect(game.state('error')).to.be.false;
+        expect(game.state('currentPhaseIndex')).to.equal(0);
+        expect(game.state('errorMessage')).to.be.empty;
+    });
+
 });
 
 describe('PlayerSelectionScreen item', () => {
@@ -80,7 +82,7 @@ describe('ErrorScreen item', () => {
 
 describe('PlayerNamesScreen item', () => {
     const numberOfPlayers = 7;
-    let playerNamesScreen = shallow(<PlayerNamesScreen selectedNumberOfPlayers={numberOfPlayers}/>);
+    let playerNamesScreen = mount(<PlayerNamesScreen selectedNumberOfPlayers={numberOfPlayers} playerNames={[]}/>);
 
     it('should create as many inputs as characters selected', () => {
         expect(playerNamesScreen.find('input').length).to.equal(numberOfPlayers);
@@ -115,6 +117,15 @@ describe('Game item', () => {
         changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'input');
         changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'input');
         changeElementSettingState(playerNamesScreen.find('#name-3'), 'SAW', 'input');
+
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+        expect(game.find('ErrorScreen').length).to.equal(1);
+        expect(game.find('ErrorScreen').text()).to.contain("almeno un lupo");
+
+        game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
+        expect(game.find('#name-0').text()).to.be.empty;
+
         changeElementSettingState(playerNamesScreen.find('#role-0'), 'Lupo', 'change');
         changeElementSettingState(playerNamesScreen.find('#role-1'), 'Lupo', 'change');
         changeElementSettingState(playerNamesScreen.find('#role-2'), 'Lupo', 'change');
@@ -123,6 +134,37 @@ describe('Game item', () => {
 
         expect(game.find('ErrorScreen').length).to.equal(1);
         expect(game.find('ErrorScreen').text()).to.contain("troppi lupi");
+    });
+
+    it('should not accept any blank name fields', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 4;
+
+        goToPlayerNamesScreen(game, numberOfPlayers);
+        let playerNamesScreen = game.find('PlayerNamesScreen');
+
+        expect(game.find('#name-0').text()).to.be.empty;
+        expect(game.find('#name-1').text()).to.be.empty;
+        expect(game.find('#name-2').text()).to.be.empty;
+        expect(game.find('#name-3').text()).to.be.empty;
+
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+        expect(game.find('ErrorScreen').length).to.equal(1);
+        expect(game.find('ErrorScreen').text()).to.contain("nome");
+
+        game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
+        expect(game.find('#name-0').text()).to.be.empty;
+
+        changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'input');
+        changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'input');
+        changeElementSettingState(playerNamesScreen.find('#name-2'), 'Alberto', 'input');
+        changeElementSettingState(playerNamesScreen.find('#role-0'), 'Lupo', 'change');
+
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+        expect(game.find('ErrorScreen').length).to.equal(1);
+        expect(game.find('ErrorScreen').text()).to.contain("nome");
     });
 });
 
