@@ -1,0 +1,99 @@
+* {
+    font-size: 22px;
+    font-family: sans-serif
+}
+
+.title {
+    font-size: 36px;
+    font-family: serif;
+}
+
+.field {
+    margin-bottom: 0.35em;
+    height: 1.75em;
+}
+
+.big-text {
+    font-size: 22px;
+    font-family: sans-serif;
+}
+
+.left-margin {
+    margin-left: 1em;
+    margin-bottom: 5px !important;
+}
+
+.top-margin {
+    margin-top: 1em;
+}
+
+.bottom-margin {
+    margin-bottom: 0.35em;
+}
+
+.numeric-select-width {
+     width: 2em;
+ }
+
+.text-select-width {
+     width: 10em;
+ }
+
+.right-margin {
+    margin-left: -1.3em;
+}
+
+.col-xs-12 > .btn-warning {
+    margin-left: 3.55em;
+}
+
+.col-xs-12 > #playersNamesDiv {
+    margin-left: 22em;
+}
+
+.wide-right-margin {
+    margin-left: -2em;
+}
+
+.confirm-players-button {
+    margin-left: 27.25em;
+    width: 46.25% !important;
+}
+
+.go-back-players-button {
+    margin-left: 9.25em;
+    width: 37.5% !important;
+}
+
+div.col-xs-4.col-xs-offset-4 > div > input {
+    width: 60%;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
