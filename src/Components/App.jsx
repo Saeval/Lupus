@@ -68,33 +68,50 @@ class Game extends Component {
     }
 
     handlePlayerRoleSelection(event){
-        let temp = this.state.playerRoles;
+        let newRoles = this.state.playerRoles;
         let selectedRole = event.target.value;
         let position = event.target.id.split('-')[1];
 
-        temp[position] = selectedRole;
+        newRoles[position] = selectedRole;
 
-        this.setState({ playerRoles: temp });
+        this.setState({ playerRoles: newRoles });
     }
 
     handlePlayerNameChange(event){
-        let temp = this.state.playerNames;
+        let newNames = this.state.playerNames;
         let position = event.target.id.split('-')[1];
 
-        temp[position] = event.target.value;
+        newNames[position] = event.target.value;
 
-        this.setState({ playerNames: temp });
-
-        console.log(temp);
+        this.setState({ playerNames: newNames });
     }
 
     handlePlayerDataConfirm(){
-        for(let i = 0; i < this.state.selectedNumberOfPlayers; i++)
-            console.log(this.state.playerNames[i] + ' è un ' + this.state.playerRoles[i]);
+        this.validate();
     }
 
+    validate(){
+        /*for(let i = 0; i < this.state.selectedNumberOfPlayers; i++)
+            console.log(this.state.playerNames[i] + ' è un ' + this.state.playerRoles[i]);*/
+
+        let wolves = 0;
+        const maxNumberOfWolves = Math.round(this.state.selectedNumberOfPlayers / 3);
+
+        for(let i = 0; i < this.state.selectedNumberOfPlayers; i++) {
+            if (this.state.playerRoles[i].toLowerCase() === 'lupo')
+                wolves++;
+        }
+
+        if (wolves > maxNumberOfWolves)
+            this.setErrorMessage('Ci sono troppi lupi per il numero di giocatori selezionato!');
+
+
+        return true;
+    }
+
+
     render() {
-        const maxNumberOfPlayers = 8;
+        const maxNumberOfPlayers = 6;
         const headerTitle = "Welcome to Lupus in Fabula!";
 
         let returnValue;
@@ -103,7 +120,7 @@ class Game extends Component {
             returnValue = <ErrorScreen
                             errorMessage={this.state.errorMessage}
                             goBackToSelection={this.goBackToSelection}
-                          />
+                          />;
 
         else if (this.state.confirmedSelection)
             returnValue = <PlayerNamesScreen
@@ -112,7 +129,7 @@ class Game extends Component {
                             handlePlayerRoleSelection={this.handlePlayerRoleSelection}
                             handlePlayerNameChange={this.handlePlayerNameChange}
                             handlePlayerDataConfirm={this.handlePlayerDataConfirm}
-                          />
+                          />;
 
         else if (!this.state.confirmedSelection)
             returnValue = <PlayerSelectionScreen
@@ -120,7 +137,7 @@ class Game extends Component {
                                 handleNumberOfPlayersSelection={this.handleNumberOfPlayersSelection}
                                 selectedNumberOfPlayers={this.state.selectedNumberOfPlayers}
                                 handleNumberOfPlayersConfirm={this.handleNumberOfPlayersConfirm}
-                           />
+                           />;
 
         return (
           <div className="col-xs-12">

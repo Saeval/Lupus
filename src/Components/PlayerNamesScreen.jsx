@@ -40,7 +40,8 @@ class PlayerNamesScreen extends Component {
                 <select key={"select-role-" + i}
                         id={"role-" + i}
                         className="field text-select-width"
-                        onChange={this.props.handlePlayerRoleSelection}>
+                        onChange={this.props.handlePlayerRoleSelection}
+                >
                     {supportedRoles.map(role => <option key={"role-" + role + "-" + i} value={role}>{role}</option>)}
                 </select>
             </div>
