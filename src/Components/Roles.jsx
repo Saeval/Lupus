@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
 
 class Roles extends Component {
+    constructor(){
+        super();
+        this.state = {
+            roles: [
+                "Popolano",
+                "Lupo"
+            ]
+        };
+    }
+
+
     getRoles(){
-        const roles = [
-            "Popolano",
-            "Lupo"
-        ];
-        return roles;
+        return this.state.roles;
+    }
+
+    getDefaultRole(){
+        return this.state.roles[0];
     }
 }
 

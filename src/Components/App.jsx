@@ -72,13 +72,26 @@ class Game extends Component {
     }
 
     initializePlayerFields(numberOfPlayers){
-        const supportedRoles = new Roles().getRoles();
-        let tempRoles = [];
+        let tempNames = this.state.playerNames;
+        let tempRoles = this.state.playerRoles;
 
-        for(let i = 0; i < numberOfPlayers; i++)
-            tempRoles.push(supportedRoles[0]);
+        if (tempRoles.length === 0)
+            for (let i = 0; i < numberOfPlayers; i++)
+                tempRoles.push(new Roles().getDefaultRole());
 
+        this.resetData(numberOfPlayers, tempNames, tempRoles);
+
+        this.setState({ playerNames: tempNames });
         this.setState({ playerRoles: tempRoles });
+    }
+
+    resetData(numberOfPlayers, tempNames, tempRoles) {
+        if (this.state.playerRoles.length > numberOfPlayers) {
+            for (let i = numberOfPlayers; i < this.state.playerRoles.length; i++) {
+                tempNames[i] = "";
+                tempRoles[i] = new Roles().getDefaultRole();
+            }
+        }
     }
 
     handlePlayerRoleSelection(event){
