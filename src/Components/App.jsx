@@ -7,6 +7,7 @@ import Roles from "./Roles";
 import NightWolvesPhaseScreen from "./NightWolvesPhaseScreen"
 import DayPhaseScreen from "./DayPhaseScreen"
 import EndGame from "./EndGame";
+import NightGuardPhaseScreen from "./NightGuardPhaseScreen";
 //import './fonts/glyphicons-halflings-regular.eot';
 
 class Game extends Component {
@@ -22,6 +23,8 @@ class Game extends Component {
         this.confirmKillSelection = this.confirmKillSelection.bind(this);
         this.handleWolvesChoice = this.handleWolvesChoice.bind(this);
         this.handleCommonersChoice = this.handleCommonersChoice.bind(this);
+        this.confirmGuardSelection = this.confirmGuardSelection.bind(this);
+        this.handleGuardChoice = this.handleGuardChoice.bind(this);
     }
 
     constructor(){
@@ -38,6 +41,7 @@ class Game extends Component {
             alivePlayers: [],
             wolvesKill: '',
             commonersKill: '',
+            guardedPlayer: '',
             winnerMessage: ''
         };
 
@@ -55,9 +59,14 @@ class Game extends Component {
         this.setState({currentPhase: newIndex});
     }
 
-    goToNightWolvesPhase(){
+    goToNightWolvesPhase() {
         //console.log(`Setting phase to: 2`);
         this.setState({currentPhase: 2});
+    }
+
+    goToNightGuardPhase() {
+        //console.log(`Setting phase to: 1.1`);
+        this.setState({currentPhase: 1.1});
     }
 
     goToDayPhase(){
@@ -66,7 +75,7 @@ class Game extends Component {
     }
 
     resetError(){
-        console.log(`Resetting error`);
+        //console.log(`Resetting error`);
         this.setState({
             error: false,
             errorMessage: ''
@@ -111,13 +120,15 @@ class Game extends Component {
 
         let alivePlayers = this.state.playerNames;
         this.setState({alivePlayers: alivePlayers});
-        this.goToNightWolvesPhase();
+
+        this.goToFirstNightPhase(alivePlayers);
     }
 
     dataAreValid(){
         return this.isNumberOfWolvesAcceptable() &&
                this.allPlayersHaveNames() &&
-               this.allNamesAreUnique();
+               this.allNamesAreUnique() &&
+               this.uniqueRolesAreNotUnique();
     }
 
     confirmKillSelection(event){
@@ -125,16 +136,26 @@ class Game extends Component {
 
         if(this.state.currentPhase === 2)
             this.setState({wolvesKill: event.target.value });
-        else if(this.state.currentPhase === 3)
-            this.setState({commonersKill: event.target.value });
+        else if(this.state.currentPhase === 3) {
+            this.setState({
+                commonersKill: event.target.value,
+                guardedPlayer: ''
+            });
+        }
     }
 
     handleWolvesChoice(){
-        const victim = this.state.wolvesKill;
-        //console.log(`Set ${victim} as wolves' choice`);
-        if (!this.isVictimValid(victim))
-          return;
+        let victim = this.state.wolvesKill;
+        if (!this.isVictimValid(victim)) {
+            return;
+        }
 
+        if (!this.doesVictimDie(victim)) {
+            this.goToDayPhase();
+            return;
+        }
+
+        console.log(`Set ${victim} as wolves' choice`);
         const alivePlayers = this.removeFromAlivePlayers(victim);
 
         //console.log(`[handleWolvesChoice] alivePlayers: ${alivePlayers}`);
@@ -149,20 +170,21 @@ class Game extends Component {
 
     handleCommonersChoice(){
         const victim = this.state.commonersKill;
-        //console.log(`Set ${victim} as commoners' choice`);
+        console.log(`Set ${victim} as commoners' choice`);
+
         if (!this.isVictimValid(victim))
             return;
 
         const alivePlayers = this.removeFromAlivePlayers(victim);
 
-        // TODO Se i villici, uccidendo, lasciano in vita l'ultimo lupo, risulta che vincono loro
         let winners = this.gameEnded(alivePlayers);
 
         if (winners)
             this.goToEndGameScreen(winners);
         else {
-            this.setState({wolvesKill: ''});
-            this.goToNightWolvesPhase();
+            this.setState({ wolvesKill: '' });
+
+            this.goToFirstNightPhase(alivePlayers);
         }
     }
 
@@ -232,7 +254,7 @@ class Game extends Component {
         return true;
     }
 
-    allPlayersHaveNames(){
+    allPlayersHaveNames() {
         if (this.state.playerNames.length === 0) {
             this.setErrorMessage('Tutti i giocatori devono avere un nome!');
             return false;
@@ -248,6 +270,20 @@ class Game extends Component {
         return true;
     }
 
+    uniqueRolesAreNotUnique() {
+        let guards = 0;
+        for (let i = 0; i < this.state.playerRoles.length; i++) {
+            if (this.state.playerRoles[i] === this.state.roles.getGuardRole()) guards++;
+        }
+
+        if (guards > 1) {
+            this.setErrorMessage('Solo un giocatore può assumere il ruolo della guardia!');
+            return false;
+        }
+
+        return true;
+    }
+
     isVictimValid(victim){
         //console.log(`isVictimValid: chosen victim ${victim}`);
         if (victim === undefined || victim === '') {
@@ -255,7 +291,19 @@ class Game extends Component {
             return false;
         }
 
-        // TODO quando ci saranno altri ruoli
+        return true;
+    }
+
+    doesVictimDie(victim){
+        //console.log(`isVictimValid: chosen victim ${victim}`);
+        //this.isVictimValid(victim);
+
+        // TODO ampliare quando ci saranno altri ruoli
+
+        if (this.state.guardedPlayer === victim) {
+            this.setState({wolvesKill: ''});
+            return false;
+        }
 
         return true;
     }
@@ -297,6 +345,15 @@ class Game extends Component {
                             playerNames={this.state.playerNames}
                             playerRoles={this.state.playerRoles}
                           />;
+
+        else if (currentPhase === 1.1)
+            returnValue = <NightGuardPhaseScreen
+                alivePlayers={this.state.alivePlayers}
+                playerNames={this.state.playerNames}
+                playerRoles={this.state.playerRoles}
+                confirmGuardSelection={this.confirmGuardSelection}
+                handleGuardChoice={this.handleGuardChoice}
+            />;
 
         else if (currentPhase === 2)
             returnValue = <NightWolvesPhaseScreen
@@ -341,11 +398,28 @@ class Game extends Component {
         this.setState({currentPhase: 4});
     }
 
+    confirmGuardSelection(event) {
+        console.log(`[confirmGuardSelection][guardedPlayer]: ${event.target.value}`);
+        this.setState({guardedPlayer: event.target.value});
+    }
+
+    handleGuardChoice() {
+        console.log("[handleGuardChoice] Going to NightWolves phase");
+
+        if (this.state.guardedPlayer === undefined || this.state.guardedPlayer === '') {
+            this.setErrorMessage('Selezionare un giocatore!');
+            return false;
+        }
+
+        this.setState({currentPhase: 2});
+    }
+
     wolvesHaveWon(alivePlayers) {
         const wolfRole = this.state.roles.getRoleByName('lupo');
-        const commonerRole = this.state.roles.getDefaultRole();
         let wolves = this.getAlivePlayersByRole(alivePlayers, wolfRole);
-        let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
+
+        // Filtrare per alivePlayers - wolves, per qualche motivo, non funziona
+        let commoners = this.getCommonersSide(alivePlayers);
 
         //console.log(`Wolves: ${wolves}`);
         //console.log(`Commoners: ${commoners}`);
@@ -363,13 +437,30 @@ class Game extends Component {
         return result;
     }
 
+    getCommonersSide(alivePlayers) {
+        const commonerRole = this.state.roles.getDefaultRole();
+        const guardRole = this.state.roles.getGuardRole();
+        return this.getAlivePlayersByRole(alivePlayers, commonerRole)
+                   .concat(this.getAlivePlayersByRole(alivePlayers, guardRole));
+    }
+
+    isGuardAlive(alivePlayers) {
+        const players = alivePlayers === undefined ? this.state.alivePlayers : alivePlayers;
+
+        //console.log(`[isGuardAlive]: ${this.getAlivePlayersByRole(players, this.state.roles.getGuardRole()).length !== 0}`);
+        //console.log(`[isGuardAlive][alivePlayers]: ${players}`);
+        //console.log(`[isGuardAlive][Guard]: ${this.getAlivePlayersByRole(players, this.state.roles.getGuardRole())}`);
+
+        return this.getAlivePlayersByRole(players, this.state.roles.getGuardRole()).length !== 0;
+    }
+
     commonersHaveWon(alivePlayers) {
         const commonerRole = this.state.roles.getDefaultRole();
-        let commoners = this.getAlivePlayersByRole(alivePlayers, commonerRole);
+        let goodGuys = this.getCommonersSide(alivePlayers, commonerRole);
 
-        //console.log(`[commonersHaveWon] Commoners: ${commoners}`);
+        //console.log(`[commonersHaveWon][goodGuys]: ${goodGuys}`);
 
-        return this.arrayAreEqual(alivePlayers, commoners);
+        return this.arrayAreEqual(alivePlayers, goodGuys);
     }
 
     setWinnerMessage(winner){
@@ -380,6 +471,12 @@ class Game extends Component {
     arrayAreEqual(a1, a2) {
         return a1.length === a2.length &&
                a1.every(element => a2.includes(element));
+    }
+
+    goToFirstNightPhase(alivePlayers) {
+        this.isGuardAlive(alivePlayers) ?
+            this.goToNightGuardPhase() :
+            this.goToNightWolvesPhase();
     }
 }
 

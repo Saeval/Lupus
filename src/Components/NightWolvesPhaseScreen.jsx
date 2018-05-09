@@ -30,7 +30,7 @@ class NightWolvesPhaseScreen extends Component {
         let wolves = this.getAliveWolves();
         let commoners = this.props.alivePlayers.filter(player => !wolves.includes(player));
 
-        console.log(`Set commoners to: ${commoners}`);
+        //console.log(`Set commoners to: ${commoners}`);
 
         return commoners;
     }

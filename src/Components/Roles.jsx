@@ -6,7 +6,8 @@ class Roles extends Component {
         this.state = {
             roles: [
                 'Popolano',
-                'Lupo'
+                'Lupo',
+                'Guardia'
             ]
         };
     }
@@ -19,9 +20,18 @@ class Roles extends Component {
         return this.state.roles[0];
     }
 
+    getWolfRole() {
+        return this.state.roles[1];
+    }
+
+    getGuardRole() {
+        return this.state.roles[2];
+    }
+
     getRoleByName(roleName){
-      for(let i = 0; i < this.state.roles.length; i++)
-        if (this.state.roles[i].toLowerCase() === roleName.toLowerCase()) return this.state.roles[i];
+        const roles = this.state.roles;
+        for(let i = 0; i < roles.length; i++)
+            if (this.state.roles[i].toLowerCase() === roleName.toLowerCase()) return this.state.roles[i];
 
       return 'Ruolo non presente';
     }
