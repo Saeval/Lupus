@@ -12,7 +12,7 @@ class Roles extends Component {
         };
     }
 
-    getRoles(){
+    getAllRoles(){
         return this.state.roles;
     }
 
@@ -34,6 +34,14 @@ class Roles extends Component {
             if (this.state.roles[i].toLowerCase() === roleName.toLowerCase()) return this.state.roles[i];
 
       return 'Ruolo non presente';
+    }
+
+    getMaxNumberOfWolvesGivenPlayers(numberOfPlayers) {
+        return Math.floor(numberOfPlayers / 3);
+    }
+
+    getMaxNumberOfGuards() {
+        return 1;
     }
 }
 

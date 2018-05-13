@@ -14,7 +14,7 @@ class Game extends Component {
 
     setUpHandlers(){
         this.resetError = this.resetError.bind(this);
-        this.goToPreviousPhase = this.goToPreviousPhase.bind(this);
+        this.goToPlayerSelectionScreen = this.goToPlayerSelectionScreen.bind(this);
         this.handleNumberOfPlayersSelection = this.handleNumberOfPlayersSelection.bind(this);
         this.handleNumberOfPlayersConfirm = this.handleNumberOfPlayersConfirm.bind(this);
         this.handlePlayerRoleSelection = this.handlePlayerRoleSelection.bind(this);
@@ -25,6 +25,7 @@ class Game extends Component {
         this.handleCommonersChoice = this.handleCommonersChoice.bind(this);
         this.confirmGuardSelection = this.confirmGuardSelection.bind(this);
         this.handleGuardChoice = this.handleGuardChoice.bind(this);
+        this.setRandomRoles = this.setRandomRoles.bind(this);
     }
 
     constructor(){
@@ -48,15 +49,84 @@ class Game extends Component {
         this.setUpHandlers();
     }
 
+    render() {
+        const maxNumberOfPlayers = 9;
+        const headerTitle = 'Welcome to Lupus in Fabula!';
+        let currentPhase = this.state.currentPhase;
+
+        let returnValue;
+
+        if (this.state.error)
+            returnValue = <ErrorScreen
+                errorMessage={this.state.errorMessage}
+                goBack={this.resetError}
+            />;
+
+        else if (currentPhase === 0)
+            returnValue = <PlayerSelectionScreen
+                maxPlayers={maxNumberOfPlayers}
+                handleNumberOfPlayersSelection={this.handleNumberOfPlayersSelection}
+                selectedNumberOfPlayers={this.state.selectedNumberOfPlayers}
+                handleNumberOfPlayersConfirm={this.handleNumberOfPlayersConfirm}
+            />;
+
+        else if (currentPhase === 1)
+            returnValue = <PlayerNamesScreen
+                selectedNumberOfPlayers={this.state.selectedNumberOfPlayers}
+                goBack={this.goToPlayerSelectionScreen}
+                handlePlayerRoleSelection={this.handlePlayerRoleSelection}
+                handlePlayerNameChange={this.handlePlayerNameChange}
+                handlePlayerDataConfirm={this.handlePlayerDataConfirm}
+                playerNames={this.state.playerNames}
+                playerRoles={this.state.playerRoles}
+                setRandomRoles={this.setRandomRoles}
+            />;
+
+        else if (currentPhase === 1.1)
+            returnValue = <NightGuardPhaseScreen
+                alivePlayers={this.state.alivePlayers}
+                playerNames={this.state.playerNames}
+                playerRoles={this.state.playerRoles}
+                confirmGuardSelection={this.confirmGuardSelection}
+                handleGuardChoice={this.handleGuardChoice}
+            />;
+
+        else if (currentPhase === 2)
+            returnValue = <NightWolvesPhaseScreen
+                alivePlayers={this.state.alivePlayers}
+                playerRoles={this.state.playerRoles}
+                playerNames={this.state.playerNames}
+                confirmKillSelection={this.confirmKillSelection}
+                handleWolvesChoice={this.handleWolvesChoice}
+            />;
+
+        else if (currentPhase === 3)
+            returnValue = <DayPhaseScreen
+                wolvesKill={this.state.wolvesKill}
+                alivePlayers={this.state.alivePlayers}
+                confirmKillSelection={this.confirmKillSelection}
+                handleCommonersChoice={this.handleCommonersChoice}
+            />;
+
+        else if (currentPhase === 4)
+            returnValue = <EndGame message={this.state.winnerMessage}/>;
+
+        return (
+            <div className="col-xs-12">
+                <Header title={headerTitle}/>
+                {returnValue}
+            </div>
+        );
+    }
+
     goToPlayerDataScreen(){
         //console.log(`Setting phase to: 1`);
         this.setState({currentPhase: 1});
     }
 
-    goToPreviousPhase(){
-        let newIndex = this.state.currentPhase - 1;
-        //console.log(`Setting phase to: ${newIndex}`);
-        this.setState({currentPhase: newIndex});
+    goToPlayerSelectionScreen(){
+        //console.log(`Setting phase to: 0`);
+        this.setState({currentPhase: 0});
     }
 
     goToNightWolvesPhase() {
@@ -72,6 +142,16 @@ class Game extends Component {
     goToDayPhase(){
         //console.log(`Setting phase to: 3`);
         this.setState({currentPhase: 3});
+    }
+
+    goToFirstNightPhase(alivePlayers) {
+        this.isGuardAlive(alivePlayers) ?
+            this.goToNightGuardPhase() :
+            this.goToNightWolvesPhase();
+    }
+
+    isGuardAlive(alivePlayers) {
+        return this.getAlivePlayersByRole(alivePlayers, this.state.roles.getGuardRole()).length !== 0;
     }
 
     resetError(){
@@ -105,6 +185,46 @@ class Game extends Component {
         this.setState({ playerRoles: newRoles });
     }
 
+    setRandomRoles() {
+        const roles = this.state.roles;
+        let newRoles = this.state.playerRoles;
+        const numberOfPlayers = this.state.selectedNumberOfPlayers;
+
+        const maxNumberOfWolves = roles.getMaxNumberOfWolvesGivenPlayers(numberOfPlayers);
+        const maxNumberOfGuard = roles.getMaxNumberOfGuards();
+        const maxNumberOfCommoners = numberOfPlayers - maxNumberOfWolves - maxNumberOfGuard;
+
+        this.removeDefaultCommonerRole(newRoles);
+
+        //console.log(newRoles);
+
+        for (let i = 0; i < numberOfPlayers; i++) {
+            let remainingRolesToAssign = [];
+
+            let currentNumberOfWolves = this.getNumberOfPlayersWithRole(newRoles, roles.getWolfRole());
+            let currentNumberOfGuards = this.getNumberOfPlayersWithRole(newRoles, roles.getGuardRole());
+            let currentNumberOfCommoners = this.getNumberOfPlayersWithRole(newRoles, roles.getDefaultRole());
+
+            this.addRoles(maxNumberOfWolves - currentNumberOfWolves, remainingRolesToAssign, roles.getWolfRole());
+            this.addRoles(maxNumberOfGuard - currentNumberOfGuards, remainingRolesToAssign, roles.getGuardRole());
+            this.addRoles(maxNumberOfCommoners - currentNumberOfCommoners, remainingRolesToAssign, roles.getDefaultRole());
+
+            newRoles[i] = remainingRolesToAssign[Math.floor(Math.random() * remainingRolesToAssign.length)];
+        }
+
+        //console.log(newRoles);
+        this.setState({ playerRoles: newRoles });
+    }
+
+    getNumberOfPlayersWithRole(playersRoles, roleToGet) {
+        return playersRoles.filter(role => role === roleToGet).length;
+    }
+
+    addRoles(numberOfTimesToAdd, remainingRolesToAssign, role) {
+        for (let i = 0; i < numberOfTimesToAdd; i++)
+            remainingRolesToAssign.push(role);
+    }
+
     handlePlayerNameChange(event){
         let newNames = this.state.playerNames;
         let position = event.target.id.split('-')[1];
@@ -126,9 +246,9 @@ class Game extends Component {
 
     dataAreValid(){
         return this.isNumberOfWolvesAcceptable() &&
-               this.allPlayersHaveNames() &&
-               this.allNamesAreUnique() &&
-               this.uniqueRolesAreNotUnique();
+            this.allPlayersHaveNames() &&
+            this.allNamesAreUnique() &&
+            this.uniqueRolesAreNotUnique();
     }
 
     confirmKillSelection(event){
@@ -204,13 +324,13 @@ class Game extends Component {
             for (let i = 0; i < numberOfPlayers; i++)
                 tempRoles.push(this.state.roles.getDefaultRole());
 
-        this.resetData(numberOfPlayers, tempNames, tempRoles);
+        this.resetDataForPlayersNonExistentAnymore(numberOfPlayers, tempNames, tempRoles);
 
         this.setState({ playerNames: tempNames });
         this.setState({ playerRoles: tempRoles });
     }
 
-    resetData(numberOfPlayers, tempNames, tempRoles) {
+    resetDataForPlayersNonExistentAnymore(numberOfPlayers, tempNames, tempRoles) {
         if (this.state.playerRoles.length > numberOfPlayers) {
             for (let i = numberOfPlayers; i < this.state.playerRoles.length; i++) {
                 tempNames[i] = '';
@@ -314,75 +434,6 @@ class Game extends Component {
         return alivePlayers;
     }
 
-    render() {
-        const maxNumberOfPlayers = 9;
-        const headerTitle = 'Welcome to Lupus in Fabula!';
-        let currentPhase = this.state.currentPhase;
-
-        let returnValue;
-
-        if (this.state.error)
-            returnValue = <ErrorScreen
-                            errorMessage={this.state.errorMessage}
-                            goBack={this.resetError}
-                          />;
-
-        else if (currentPhase === 0)
-            returnValue = <PlayerSelectionScreen
-                            maxPlayers={maxNumberOfPlayers}
-                            handleNumberOfPlayersSelection={this.handleNumberOfPlayersSelection}
-                            selectedNumberOfPlayers={this.state.selectedNumberOfPlayers}
-                            handleNumberOfPlayersConfirm={this.handleNumberOfPlayersConfirm}
-                          />;
-
-        else if (currentPhase === 1)
-            returnValue = <PlayerNamesScreen
-                            selectedNumberOfPlayers={this.state.selectedNumberOfPlayers}
-                            goBack={this.goToPreviousPhase}
-                            handlePlayerRoleSelection={this.handlePlayerRoleSelection}
-                            handlePlayerNameChange={this.handlePlayerNameChange}
-                            handlePlayerDataConfirm={this.handlePlayerDataConfirm}
-                            playerNames={this.state.playerNames}
-                            playerRoles={this.state.playerRoles}
-                          />;
-
-        else if (currentPhase === 1.1)
-            returnValue = <NightGuardPhaseScreen
-                alivePlayers={this.state.alivePlayers}
-                playerNames={this.state.playerNames}
-                playerRoles={this.state.playerRoles}
-                confirmGuardSelection={this.confirmGuardSelection}
-                handleGuardChoice={this.handleGuardChoice}
-            />;
-
-        else if (currentPhase === 2)
-            returnValue = <NightWolvesPhaseScreen
-                            alivePlayers={this.state.alivePlayers}
-                            playerRoles={this.state.playerRoles}
-                            playerNames={this.state.playerNames}
-                            confirmKillSelection={this.confirmKillSelection}
-                            handleWolvesChoice={this.handleWolvesChoice}
-                          />;
-
-        else if (currentPhase === 3)
-            returnValue = <DayPhaseScreen
-                            wolvesKill={this.state.wolvesKill}
-                            alivePlayers={this.state.alivePlayers}
-                            confirmKillSelection={this.confirmKillSelection}
-                            handleCommonersChoice={this.handleCommonersChoice}
-                          />;
-
-        else if (currentPhase === 4)
-            returnValue = <EndGame message={this.state.winnerMessage}/>;
-
-        return (
-          <div className="col-xs-12">
-              <Header title={headerTitle}/>
-              {returnValue}
-          </div>
-        );
-  }
-
     gameEnded(alivePlayers) {
         if (this.wolvesHaveWon(alivePlayers))
             return 'wolves';
@@ -399,12 +450,12 @@ class Game extends Component {
     }
 
     confirmGuardSelection(event) {
-        console.log(`[confirmGuardSelection][guardedPlayer]: ${event.target.value}`);
+        //console.log(`[confirmGuardSelection][guardedPlayer]: ${event.target.value}`);
         this.setState({guardedPlayer: event.target.value});
     }
 
     handleGuardChoice() {
-        console.log("[handleGuardChoice] Going to NightWolves phase");
+        //console.log("[handleGuardChoice] Going to NightWolves phase");
 
         if (this.state.guardedPlayer === undefined || this.state.guardedPlayer === '') {
             this.setErrorMessage('Selezionare un giocatore!');
@@ -441,17 +492,7 @@ class Game extends Component {
         const commonerRole = this.state.roles.getDefaultRole();
         const guardRole = this.state.roles.getGuardRole();
         return this.getAlivePlayersByRole(alivePlayers, commonerRole)
-                   .concat(this.getAlivePlayersByRole(alivePlayers, guardRole));
-    }
-
-    isGuardAlive(alivePlayers) {
-        const players = alivePlayers === undefined ? this.state.alivePlayers : alivePlayers;
-
-        //console.log(`[isGuardAlive]: ${this.getAlivePlayersByRole(players, this.state.roles.getGuardRole()).length !== 0}`);
-        //console.log(`[isGuardAlive][alivePlayers]: ${players}`);
-        //console.log(`[isGuardAlive][Guard]: ${this.getAlivePlayersByRole(players, this.state.roles.getGuardRole())}`);
-
-        return this.getAlivePlayersByRole(players, this.state.roles.getGuardRole()).length !== 0;
+            .concat(this.getAlivePlayersByRole(alivePlayers, guardRole));
     }
 
     commonersHaveWon(alivePlayers) {
@@ -470,13 +511,12 @@ class Game extends Component {
 
     arrayAreEqual(a1, a2) {
         return a1.length === a2.length &&
-               a1.every(element => a2.includes(element));
+            a1.every(element => a2.includes(element));
     }
 
-    goToFirstNightPhase(alivePlayers) {
-        this.isGuardAlive(alivePlayers) ?
-            this.goToNightGuardPhase() :
-            this.goToNightWolvesPhase();
+    removeDefaultCommonerRole(newPlayerRoles) {
+        for (let i = 0; i < newPlayerRoles.length; i++)
+            newPlayerRoles[i] = '';
     }
 }
 

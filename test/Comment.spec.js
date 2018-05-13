@@ -83,11 +83,21 @@ describe('ErrorScreen item', () => {
 
 describe('PlayerNamesScreen item', () => {
     const numberOfPlayers = 7;
-    let playerNamesScreen = mount(<PlayerNamesScreen selectedNumberOfPlayers={numberOfPlayers} playerNames={[]}/>);
+    let playerNamesScreen = mount(<PlayerNamesScreen selectedNumberOfPlayers={numberOfPlayers}
+                                                     playerRoles={[]}
+                                                     playerNames={[]}/>);
 
     it('should create as many inputs as characters selected', () => {
         expect(playerNamesScreen.find('input').length).to.equal(numberOfPlayers);
     });
+
+    /*it('should be able to assign random roles', () => {
+        playerNamesScreen.find('.btn-info').simulate('click');
+        const expectedElements = ['Popolano', 'Lupo', 'Guardia'];
+
+        let actualRoles = playerNamesScreen.state('playerRoles').map(select => select.props.value);
+        AssertArrayContains(actualRoles, expectedElements)
+    });*/
 });
 
 describe('NightWolvesPhaseScreen item', () => {
@@ -199,8 +209,8 @@ describe('Game item', () => {
         expect(game.find('#name-1').text()).to.be.empty;
         expect(game.find('#name-2').text()).to.be.empty;
         expect(game.find('#name-3').text()).to.be.empty;
-        changeElementSettingState(playerNamesScreen.find('#role-0'), 'Lupo', 'change');
 
+        changeElementSettingState(playerNamesScreen.find('#role-0'), 'Lupo', 'change');
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
         AssertElementIsVisible(game.find('ErrorScreen'));
@@ -239,6 +249,23 @@ describe('Game item', () => {
         AssertElementIsVisible(game.find('ErrorScreen'));
         AssertErrorScreenTextContains(game, 'nome');
         AssertErrorScreenTextContains(game, 'unico');
+    });
+
+    it('should be able to assign roles randomly', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 6;
+
+        let playerNamesScreen = goToPlayerNamesScreen(game, numberOfPlayers);
+
+        AssertArrayContains(game.state('playerRoles'), ['Popolano']);
+        AssertArrayNotContains(game.state('playerRoles'), ['Lupo', 'Guardia']);
+
+        playerNamesScreen.find('.btn-info').simulate('click');
+
+        AssertArrayContains(game.state('playerRoles'), ['Popolano', 'Lupo', 'Guardia']);
+        expect(game.state('playerRoles').filter(role => role === 'Lupo').length).to.equal(2);
+        expect(game.state('playerRoles').filter(role => role === 'Guardia').length).to.equal(1);
+        expect(game.state('playerRoles').filter(role => role === 'Popolano').length).to.equal(3);
     });
 
     it('should not let wolves select first (empty) option', () => {
