@@ -7,17 +7,16 @@ class PlayerNamesScreen extends Component {
     constructor(props){
         super(props);
         this.state = {
-            playersNames: [],
-            playersRoles: []
+            playersNames: this.getPlayersNames(),
+            playersRoles: this.getPlayersRoles()
         };
-
-        this.fillPlayersNames();
-        this.getPlayersRoles();
     }
 
-    fillPlayersNames(){
+    getPlayersNames() {
+        let playerNames = [];
+
         for (let i = 0; i < this.props.selectedNumberOfPlayers; i++) {
-            this.state.playersNames.push(
+            playerNames[i] =
                 <div key={"label-input-container-" + i}>
                     <label key={"label-" + i}>Nome giocatore {i + 1}</label>
                     <input type="text"
@@ -28,16 +27,20 @@ class PlayerNamesScreen extends Component {
                            defaultValue={this.props.playersNames !== [] ? this.props.playerNames[i] : ""}
                     />
                 </div>
-            )
         }
+
+        return playerNames;
     }
 
     getPlayersRoles(){
         const supportedRoles = new Roles().getAllRoles();
 
+        let playerRoles = [];
+
         for(let i = 0; i < this.props.selectedNumberOfPlayers; i++) {
             let defaultValue = this.props.playerRoles !== undefined ? this.props.playerRoles[i] : supportedRoles[0];
-            this.state.playersRoles[i] =
+
+            playerRoles[i] =
                 <div key={`select-container-${i}`}>
                     <select key={`${defaultValue}`}
                             id={`role-${i}`}
@@ -47,10 +50,10 @@ class PlayerNamesScreen extends Component {
                     >
                         {supportedRoles.map(role => <option key={`role-${role}-${i}`} value={role}>{role}</option>)}
                     </select>
-                </div>
+                </div>;
         }
 
-        return this.state.playersRoles;
+        return playerRoles;
     }
 
     render() {
@@ -60,6 +63,10 @@ class PlayerNamesScreen extends Component {
                     {this.state.playersNames}
                 </div>
                 <div className="col-xs-3 wide-right-margin">
+                    {/*
+                        For some reason, displaying this.state.playersRoles
+                        doesn't update the labels if the setRandomRoles button is pressed
+                    */}
                     {this.getPlayersRoles()}
                 </div>
                 <div className="col-xs-4 col-xs-offset-2">
@@ -72,7 +79,9 @@ class PlayerNamesScreen extends Component {
                     <BackToSelectionButton className="col-xs-5 btn btn-warning top-margin go-back-players-button"
                                            goBack={this.props.goBack}/>
                     <button className="col-xs-5 btn btn-info top-margin go-back-players-button"
-                            onClick={this.props.setRandomRoles}> Random roles </button>
+                            onClick={this.props.setRandomRoles}>
+                        Random roles
+                    </button>
                 </div>
             </div>
         );

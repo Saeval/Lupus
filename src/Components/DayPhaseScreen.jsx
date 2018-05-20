@@ -25,22 +25,34 @@ class DayPhaseScreen extends Component {
     }
 
     setMessageFirstPart() {
-        return this.props.wolvesKill === '' ?
-            'Nessuno' :
-            this.props.wolvesKill;
+        //console.log(`[DayPhaseScreen][setMessageFirstPart][this.props.wolvesKills]: ${this.props.wolvesKills}`);
+        let numberOfVictims = this.props.wolvesKills === undefined ?
+                                0 :
+                                this.props.wolvesKills.length;
+
+        //console.log(`[DayPhaseScreen][setMessageFirstPart][numberOfVictims]: ${numberOfVictims}`);
+
+        if (numberOfVictims === 0)
+            return 'Nobody';
+
+        else if (numberOfVictims === 1)
+            return `${this.props.wolvesKills[0]}`;
+
+        else
+            return this.props.wolvesKills.join(' and ');
     }
 
     setMessageSecondPart() {
-        return this.props.wolvesKill === '' ?
-            'Ma voi siete delle brutte persone, quindi dovete linciare qualcuno comunque' :
-            'But the show must go on! Discutete di chi sia la colpa e decidete chi linciare';
+        return this.props.wolvesKills === [] ?
+            "But you're bad persons, so you have to lynch someone anyway!" :
+            'But the show must go on! Discuss about who you think did it and pick someone to lynch!';
     }
 
     render() {
       return (
         <div className="col-xs-12 col-xs-offset-3">
             <div className="col-xs-4">
-                <strong>{this.state.messageFirstPart}</strong> è morto! <br/>{this.state.messageSecondPart}
+                <strong>{this.state.messageFirstPart}</strong> died! <br/>{this.state.messageSecondPart}
             </div>
             <div className="col-xs-5">
                 {this.getAlivePlayersSelect()}

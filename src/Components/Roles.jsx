@@ -5,27 +5,32 @@ class Roles extends Component {
         super();
         this.state = {
             roles: [
-                'Popolano',
-                'Lupo',
-                'Guardia'
+                'Commoner',
+                'Wolf',
+                'Guard',
+                'Whore'
             ]
         };
     }
 
-    getAllRoles(){
+    getAllRoles() {
         return this.state.roles;
     }
 
-    getDefaultRole(){
-        return this.state.roles[0];
+    getDefaultRole() {
+        return this.state.roles.find(role => role === 'Commoner');
     }
 
     getWolfRole() {
-        return this.state.roles[1];
+        return this.state.roles.find(role => role === 'Wolf');
     }
 
     getGuardRole() {
-        return this.state.roles[2];
+        return this.state.roles.find(role => role === 'Guard');
+    }
+
+    getWhoreRole() {
+        return this.state.roles.find(role => role === 'Whore');
     }
 
     getRoleByName(roleName){
@@ -33,7 +38,7 @@ class Roles extends Component {
         for(let i = 0; i < roles.length; i++)
             if (this.state.roles[i].toLowerCase() === roleName.toLowerCase()) return this.state.roles[i];
 
-      return 'Ruolo non presente';
+      return 'Role not existing';
     }
 
     getMaxNumberOfWolvesGivenPlayers(numberOfPlayers) {
@@ -42,6 +47,16 @@ class Roles extends Component {
 
     getMaxNumberOfGuards() {
         return 1;
+    }
+
+    getMaxNumberOfWhores() {
+        return 1;
+    }
+
+    getMaxNumberOfCommoners(numberOfPlayers) {
+        return numberOfPlayers - this.getMaxNumberOfWolvesGivenPlayers(numberOfPlayers)
+                               - this.getMaxNumberOfGuards()
+                               - this.getMaxNumberOfWhores();
     }
 }
 

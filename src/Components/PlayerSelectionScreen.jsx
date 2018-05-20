@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 
 class PlayerSelectionScreen extends Component {
     buildOptions(players) {
-        if (players < 4)
+        if (players < 6)
             return null;
 
         let options = [];
         options.push(<option key={-1} value={-1}>--</option>);
-        for (let i = 4; i <= players; i++) {
+        for (let i = 6; i <= players; i++) {
             options.push(
                 <option key={i} value={i}>
                     {i}

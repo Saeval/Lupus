@@ -15,24 +15,22 @@ class NightWolvesPhaseScreen extends Component {
         let wolves = [];
         const alivePlayers = this.props.alivePlayers;
         const playerNames = this.props.playerNames;
-        const wolfRole = new Roles().getRoleByName('lupo');
+        const wolfRole = new Roles().getRoleByName('wolf');
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
             if (this.props.playerRoles[i] === wolfRole && alivePlayers.includes(playerNames[i]))
                 wolves.push(playerNames[i]);
 
-        console.log(`Set wolves to: ${wolves}`);
+        //console.log(`Set wolves to: ${wolves}`);
 
         return wolves;
     }
 
     getAliveCommoners(){
         let wolves = this.getAliveWolves();
-        let commoners = this.props.alivePlayers.filter(player => !wolves.includes(player));
-
         //console.log(`Set commoners to: ${commoners}`);
 
-        return commoners;
+        return this.props.alivePlayers.filter(player => !wolves.includes(player));
     }
 
     getCommonersSelect(){
@@ -50,8 +48,8 @@ class NightWolvesPhaseScreen extends Component {
     render() {
         let wolves = this.state.wolves;
         let killSomeoneText = wolves.length === 1 ?
-                            `Lupo ${wolves[0]}, decidi chi accoppare` :
-                            `Lupi ${wolves.join(', ')}, accordatevi sul chi accoppare`;
+                            `Wolf ${wolves[0]}, pick someone to kill` :
+                            `Wolves ${wolves.join(', ')}, pick someone to kill`;
         return (
           <div className="col-xs-12 col-xs-offset-3">
               <div className="col-xs-4">

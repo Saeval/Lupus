@@ -11,11 +11,11 @@ class NightGuardPhaseScreen extends Component {
     }
 
     getGuardName() {
-        console.log(`[getGuardName][alivePlayers]: ${this.props.alivePlayers}`);
+        //console.log(`[getGuardName][alivePlayers]: ${this.props.alivePlayers}`);
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
             if (this.props.playerRoles[i] === new Roles().getGuardRole()) {
-                console.log(`[getGuardName][getGuardName]: ${this.props.playerNames[i]}`);
+                //console.log(`[NightGuardPhaseScreen][getGuardName]: ${this.props.playerNames[i]}`);
                 return this.props.playerNames[i];
             }
     }
@@ -38,7 +38,7 @@ class NightGuardPhaseScreen extends Component {
         return (
           <div className="col-xs-12 col-xs-offset-3">
               <div className="col-xs-4">
-                  {`Guardia ${guard}, decidi chi proteggere`}
+                  {`Guard ${guard}, pick someone to protect`}
               </div>
               <div className="col-xs-5">
                   {this.getPlayersSelect()}
