@@ -650,6 +650,33 @@ describe('Game item', () => {
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
     });
+
+    it('nobody should die if whore and guard go to victim', () => {
+        let game = mount(<Game />);
+        goToNightGuardPhaseScreen_WithWhore(game);
+
+        AssertElementIsVisible(getNightGuardPhaseScreen(game));
+        AssertGuardNightPhaseScreenContains(game, 'Guard Bonny');
+        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmGuardChoice(game);
+
+        AssertElementIsVisible(getNightWhorePhaseScreen(game));
+        AssertWhoreNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmWhoreChoice(game);
+
+        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertElementIsVisible(getDayPhaseScreen(game));
+        AssertDayPhaseScreenContains(game, 'Nobody died');
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Alberto', 'Michael', 'SAW', 'Claudio', 'Doctor', 'Bonny']);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
+        ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(getNightGuardPhaseScreen(game));
+    });
 });
 
 function AssertElementIsVisible(element) {
@@ -717,6 +744,23 @@ function goToNightWhorePhaseScreen(game) {
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
     //changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-3'), 'Whore', 'change');
+
+    playerNamesScreen.find('.confirm-players-button').simulate('click');
+}
+
+function goToNightGuardPhaseScreen_WithWhore(game) {
+    let playerNamesScreen = goToPlayerNamesScreen(game, 7);
+
+    changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Michael', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-5'), 'Guard', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-3'), 'Whore', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
