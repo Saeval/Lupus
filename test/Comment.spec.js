@@ -7,8 +7,7 @@ import ErrorScreen from "../src/Components/ErrorScreen";
 import Header from "../src/Components/Header";
 import NightWolvesPhaseScreen from "../src/Components/NightWolvesPhaseScreen";
 import DayPhaseScreen from "../src/Components/DayPhaseScreen";
-import NightGuardPhaseScreen from "../src/Components/NightGuardPhaseScreen";
-import NightWhorePhaseScreen from "../src/Components/NightWhorePhaseScreen";
+import NightSpecialCharacterScreen from "../src/Components/NightSpecialCharacterScreen";
 
 describe('Header item', () => {
     const title = "A random title";
@@ -119,31 +118,15 @@ describe('NightWolvesPhaseScreen item', () => {
     });
 });
 
-describe('NightGuardPhaseScreen item', () => {
-    let screen = mount(<NightGuardPhaseScreen
+describe('NightSpecialCharacterScreen item', () => {
+    let screen = mount(<NightSpecialCharacterScreen
         alivePlayers={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
         playerNames={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
         playerRoles={['Commoner', 'Commoner', 'Commoner', 'Wolf', 'Guard']}
+        specialRole={'Guard'}
     />);
 
     it('should not contain guard in select', () => {
-        expect(screen.find('option').length).to.equal(4 + 1);
-        expect(screen.find('option').at(0).text()).to.equal('--');
-        expect(screen.find('option').at(1).text()).to.equal('Nome1');
-        expect(screen.find('option').at(2).text()).to.equal('Nome2');
-        expect(screen.find('option').at(3).text()).to.equal('Nome3');
-        expect(screen.find('option').at(4).text()).to.equal('Nome4');
-    });
-});
-
-describe('NightWhorePhaseScreen item', () => {
-    let screen = mount(<NightWhorePhaseScreen
-        alivePlayers={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
-        playerNames={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
-        playerRoles={['Commoner', 'Commoner', 'Commoner', 'Wolf', 'Whore']}
-    />);
-
-    it('should not contain whore in select', () => {
         expect(screen.find('option').length).to.equal(4 + 1);
         expect(screen.find('option').at(0).text()).to.equal('--');
         expect(screen.find('option').at(1).text()).to.equal('Nome1');
@@ -322,8 +305,33 @@ describe('Game item', () => {
         let game = mount(<Game />);
 
         goToNightGuardPhaseScreen(game);
-        ClickConfirmGuardChoice(game);
+        ClickConfirmSpecialCharacterChoice(game);
 
+        AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'player');
+    });
+
+    it('should not let whore select first (empty) option', () => {
+        let game = mount(<Game />);
+
+        goToNightWhorePhaseScreen(game);
+        ClickConfirmSpecialCharacterChoice(game);
+
+        AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'player');
+        game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
+
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
+
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        ClickConfirmWolvesKill(game);
+
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change')
+        ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        ClickConfirmSpecialCharacterChoice(game);
         AssertElementIsVisible(game.find('ErrorScreen'));
         AssertErrorScreenTextContains(game, 'player');
     });
@@ -396,8 +404,8 @@ describe('Game item', () => {
         let game = mount(<Game />);
 
         goToNightGuardPhaseScreen(game);
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmGuardChoice(game);
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         ClickConfirmWolvesKill(game);
@@ -418,8 +426,8 @@ describe('Game item', () => {
         let game = mount(<Game />);
 
         goToNightWhorePhaseScreen(game);
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmWhoreChoice(game);
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         ClickConfirmWolvesKill(game);
@@ -431,8 +439,8 @@ describe('Game item', () => {
         AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'SAW', 'Alberto', 'Doctor']);
         AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'Bonny']);
 
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Doctor', 'change');
-        ClickConfirmWhoreChoice(game);
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Doctor', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmWolvesKill(game);
@@ -473,8 +481,9 @@ describe('Game item', () => {
         let game = mount(<Game />);
 
         goToNightGuardPhaseScreen(game);
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmGuardChoice(game);
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
         ClickConfirmWolvesKill(game);
@@ -483,8 +492,8 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
         ClickConfirmCommonersKill(game);
 
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Claudio', 'change');
-        ClickConfirmGuardChoice(game);
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Claudio', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
         ClickConfirmWolvesKill(game);
@@ -501,8 +510,9 @@ describe('Game item', () => {
         let game = mount(<Game />);
 
         goToNightWhorePhaseScreen(game);
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmWhoreChoice(game);
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Alberto', 'change');
         ClickConfirmWolvesKill(game);
@@ -564,10 +574,10 @@ describe('Game item', () => {
         let game = mount(<Game />);
         goToNightGuardPhaseScreen(game);
 
-        AssertElementIsVisible(getNightGuardPhaseScreen(game));
-        AssertGuardNightPhaseScreenContains(game, 'Guard Alberto');
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmGuardChoice(game);
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
@@ -579,36 +589,18 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Manuel', 'change');
         ClickConfirmCommonersKill(game);
 
-        AssertElementIsVisible(getNightGuardPhaseScreen(game));
-        AssertGuardNightPhaseScreenContains(game, 'Guard Alberto');
-    });
-
-    it('should not show GuardPhaseScreen if guard is dead', () => {
-        let game = mount(<Game />);
-        goToNightGuardPhaseScreen(game);
-
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmGuardChoice(game);
-
-        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmWolvesKill(game);
-
-        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Alberto', 'change');
-        ClickConfirmCommonersKill(game);
-
-        AssertArrayNotContains(game.state('alivePlayers'), ['Alberto']);
-        AssertElementDoesNotExist(getNightGuardPhaseScreen(game));
-        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard Alberto');
     });
 
     it('should kill both whore and victim if whore is sleeping with victim', () => {
         let game = mount(<Game />);
         goToNightWhorePhaseScreen(game);
 
-        AssertElementIsVisible(getNightWhorePhaseScreen(game));
-        AssertWhoreNightPhaseScreenContains(game, 'Whore Alberto');
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmWhoreChoice(game);
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
@@ -623,17 +615,17 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmCommonersKill(game);
 
-        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
     });
 
     it('should kill whore if she sleeps with a wolf', () => {
         let game = mount(<Game />);
         goToNightWhorePhaseScreen(game);
 
-        AssertElementIsVisible(getNightWhorePhaseScreen(game));
-        AssertWhoreNightPhaseScreenContains(game, 'Whore Alberto');
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'SAW', 'change');
-        ClickConfirmWhoreChoice(game);
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'SAW', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
@@ -648,22 +640,22 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmCommonersKill(game);
 
-        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
     });
 
     it('nobody should die if whore and guard go to victim', () => {
         let game = mount(<Game />);
         goToNightGuardPhaseScreen_WithWhore(game);
 
-        AssertElementIsVisible(getNightGuardPhaseScreen(game));
-        AssertGuardNightPhaseScreenContains(game, 'Guard Bonny');
-        changeElementSettingState(getNightGuardPhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmGuardChoice(game);
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard Bonny');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
-        AssertElementIsVisible(getNightWhorePhaseScreen(game));
-        AssertWhoreNightPhaseScreenContains(game, 'Whore Alberto');
-        changeElementSettingState(getNightWhorePhaseScreen(game).find('select'), 'Manuel', 'change');
-        ClickConfirmWhoreChoice(game);
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
@@ -675,7 +667,42 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmCommonersKill(game);
 
-        AssertElementIsVisible(getNightGuardPhaseScreen(game));
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+    });
+
+    it('should not let guard and whore act if they are dead', () => {
+        let game = mount(<Game />);
+        goToNightGuardPhaseScreen_WithWhore(game);
+
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard Bonny');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Alberto', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
+
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore Alberto');
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Bonny', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
+
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Bonny', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Michael', 'SAW', 'Claudio', 'Doctor']);
+        AssertArrayNotContains(game.state('alivePlayers'), ['Bonny', 'Alberto']);
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
+        ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Guard');
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'dead');
+        AssertElementDoesNotExist(getNightSpecialCharacterScreen(game).find('select'));
+        ClickConfirmSpecialCharacterChoice(game);
+
+        AssertElementIsVisible(getNightSpecialCharacterScreen(game));
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'Whore');
+        AssertSpecialCharacterNightPhaseScreenContains(game, 'dead');
+        AssertElementDoesNotExist(getNightSpecialCharacterScreen(game).find('select'));
+        ClickConfirmSpecialCharacterChoice(game);
+
+        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
     });
 });
 
@@ -791,26 +818,16 @@ function getNightWolvesPhaseScreen(game) {
     return game.find('NightWolvesPhaseScreen');
 }
 
-function getNightGuardPhaseScreen(game) {
-    return game.find('NightGuardPhaseScreen');
+function getNightSpecialCharacterScreen(game) {
+    return game.find('NightSpecialCharacterScreen');
 }
-
-function getNightWhorePhaseScreen(game) {
-    return game.find('NightWhorePhaseScreen');
-}
-
-// TODO Refactor?
 
 function ClickConfirmCommonersKill(game) {
     getDayPhaseScreen(game).find('.btn .btn-primary').simulate('click');
 }
 
-function ClickConfirmGuardChoice(game) {
-    getNightGuardPhaseScreen(game).find('button').simulate('click');
-}
-
-function ClickConfirmWhoreChoice(game) {
-    getNightWhorePhaseScreen(game).find('button').simulate('click');
+function ClickConfirmSpecialCharacterChoice(game) {
+    getNightSpecialCharacterScreen(game).find('button').simulate('click');
 }
 
 function ClickConfirmWolvesKill(game) {
@@ -829,16 +846,10 @@ function AssertErrorScreenTextContains(game, message) {
     expect(game.find('ErrorScreen').text()).to.contain(message);
 }
 
-// TODO Refactor?
-
 function AssertWolvesNightPhaseScreenContains(game, message) {
     expect(getNightWolvesPhaseScreen(game).find('div.col-xs-4').text()).to.contain(message);
 }
 
-function AssertGuardNightPhaseScreenContains(game, message) {
-    expect(getNightGuardPhaseScreen(game).find('div.col-xs-4').text()).to.contain(message);
-}
-
-function AssertWhoreNightPhaseScreenContains(game, message) {
-    expect(getNightWhorePhaseScreen(game).find('div.col-xs-4').text()).to.contain(message);
+function AssertSpecialCharacterNightPhaseScreenContains(game, message) {
+    expect(getNightSpecialCharacterScreen(game).find('div.col-xs-4').text()).to.contain(message);
 }

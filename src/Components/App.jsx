@@ -7,15 +7,13 @@ import Roles from "./Roles";
 import NightWolvesPhaseScreen from "./NightWolvesPhaseScreen"
 import DayPhaseScreen from "./DayPhaseScreen"
 import EndGame from "./EndGame";
-import NightGuardPhaseScreen from "./NightGuardPhaseScreen";
-import NightWhorePhaseScreen from "./NightWhorePhaseScreen";
+import NightSpecialCharacterScreen from "./NightSpecialCharacterScreen";
 //import './fonts/glyphicons-halflings-regular.eot';
 
 class Game extends Component {
 
     setUpHandlers(){
         this.resetError = this.resetError.bind(this);
-        //this.goToPlayerSelectionScreen = this.goToPlayerSelectionScreen.bind(this);
         this.goToNextPhase = this.goToNextPhase.bind(this);
         this.goToPreviousPhase = this.goToPreviousPhase.bind(this);
         this.handleNumberOfPlayersSelection = this.handleNumberOfPlayersSelection.bind(this);
@@ -89,21 +87,27 @@ class Game extends Component {
             />;
 
         else if (currentPhase === 1.1)
-            returnValue = <NightGuardPhaseScreen
+            returnValue = <NightSpecialCharacterScreen
                 alivePlayers={this.state.alivePlayers}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
-                confirmGuardSelection={this.confirmGuardSelection}
-                handleGuardChoice={this.handleGuardChoice}
+                confirmSelection={this.confirmGuardSelection}
+                handleChoice={this.isGuardPlaying() ? this.handleGuardChoice : this.goToNextPhase}
+                specialRole={this.state.roles.getGuardRole()}
+                aliveMessage={'pick someone to protect'}
+                key={'Guard'}
             />;
 
         else if (currentPhase === 1.2)
-            returnValue = <NightWhorePhaseScreen
+            returnValue = <NightSpecialCharacterScreen
                 alivePlayers={this.state.alivePlayers}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
-                confirmWhoreSelection={this.confirmWhoreSelection}
-                handleWhoreChoice={this.handleWhoreChoice}
+                confirmSelection={this.confirmWhoreSelection}
+                handleChoice={this.isWhorePlaying() ? this.handleWhoreChoice : this.goToNextPhase}
+                specialRole={this.state.roles.getWhoreRole()}
+                aliveMessage={'pick someone to have fun with tonight'}
+                key={'Whore'}
             />;
 
         else if (currentPhase === 2)
@@ -141,16 +145,16 @@ class Game extends Component {
         if (currentPhase === 0)
             this.setState({currentPhase: 1});
 
-        else if (currentPhase === 1 && this.isGuardAlive(alivePlayers))
+        else if (currentPhase === 1 && this.isGuardPlaying())
             this.setState({currentPhase: 1.1});
 
-        else if (currentPhase === 1 && this.isWhoreAlive(alivePlayers))
+        else if (currentPhase === 1 && this.isWhorePlaying())
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 1)
             this.setState({currentPhase: 2});
 
-        else if (currentPhase === 1.1 && this.isWhoreAlive(alivePlayers))
+        else if (currentPhase === 1.1 && this.isWhorePlaying())
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 1.1)
@@ -165,10 +169,10 @@ class Game extends Component {
         else if (currentPhase === 3 && this.gameEnded(alivePlayers))
             this.setState({currentPhase: 4});
 
-        else if (currentPhase === 3 && this.isGuardAlive(alivePlayers))
+        else if (currentPhase === 3 && this.isGuardPlaying())
             this.setState({currentPhase: 1.1});
 
-        else if (currentPhase === 3 && this.isWhoreAlive(alivePlayers))
+        else if (currentPhase === 3 && this.isWhorePlaying())
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 3)
@@ -185,12 +189,12 @@ class Game extends Component {
             this.setState({currentPhase: 1});
     }
 
-    isGuardAlive(alivePlayers) {
-        return this.getAlivePlayersByRole(alivePlayers, this.state.roles.getGuardRole()).length !== 0;
+    isGuardPlaying() {
+        return this.getNumberOfPlayersWithRole(this.state.playerRoles, this.state.roles.getGuardRole()) > 0;
     }
 
-    isWhoreAlive(alivePlayers) {
-        return this.getAlivePlayersByRole(alivePlayers, this.state.roles.getWhoreRole()).length !== 0;
+    isWhorePlaying() {
+        return this.getNumberOfPlayersWithRole(this.state.playerRoles, this.state.roles.getWhoreRole()) > 0;
     }
 
     resetError(){
@@ -258,6 +262,7 @@ class Game extends Component {
         this.setState({ playerRoles: newRoles });
     }
 
+    // TODO refactor (non passare playersRoles)?
     getNumberOfPlayersWithRole(playersRoles, roleToGet) {
         return playersRoles.filter(role => role === roleToGet).length;
     }
@@ -309,7 +314,8 @@ class Game extends Component {
             this.setState({
                 commonersKill: event.target.value,
                 wolvesKills: [],
-                guardedPlayer: ''
+                guardedPlayer: '',
+                escortedPlayer: ''
             });
         }
     }
@@ -527,7 +533,8 @@ class Game extends Component {
     }
 
     handleGuardChoice() {
-        if (this.isUndefinedOrEmpty(this.state.guardedPlayer)) {
+        if (this.isUndefinedOrEmpty(this.state.guardedPlayer) &&
+        this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getGuardRole()).length > 0) {
             this.setErrorMessage('Select a player!');
             return false;
         }
@@ -543,7 +550,8 @@ class Game extends Component {
     }
 
     handleWhoreChoice() {
-        if (this.isUndefinedOrEmpty(this.state.escortedPlayer)) {
+        if (this.isUndefinedOrEmpty(this.state.escortedPlayer) &&
+        this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWhoreRole()).length > 0) {
             this.setErrorMessage('Select a player!');
             return false;
         }
