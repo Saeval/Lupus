@@ -182,19 +182,16 @@ class Game extends Component {
     goToPreviousPhase() {
         let currentPhase = this.state.currentPhase;
 
-        if (currentPhase === 1)
-            this.setState({currentPhase: 0});
-
-        if (currentPhase === 2)
-            this.setState({currentPhase: 1});
+        if (currentPhase === 1 || currentPhase === 2)
+            this.setState({currentPhase: currentPhase - 1});
     }
 
     isGuardPlaying() {
-        return this.getNumberOfPlayersWithRole(this.state.playerRoles, this.state.roles.getGuardRole()) > 0;
+        return this.getNumberOfPlayersWithRole(this.state.roles.getGuardRole()) > 0;
     }
 
     isWhorePlaying() {
-        return this.getNumberOfPlayersWithRole(this.state.playerRoles, this.state.roles.getWhoreRole()) > 0;
+        return this.getNumberOfPlayersWithRole(this.state.roles.getWhoreRole()) > 0;
     }
 
     resetError(){
@@ -245,10 +242,10 @@ class Game extends Component {
         for (let i = 0; i < numberOfPlayers; i++) {
             let remainingRolesToAssign = [];
 
-            let currentNumberOfWolves = this.getNumberOfPlayersWithRole(newRoles, roles.getWolfRole());
-            let currentNumberOfGuards = this.getNumberOfPlayersWithRole(newRoles, roles.getGuardRole());
-            let currentNumberOfWhores = this.getNumberOfPlayersWithRole(newRoles, roles.getWhoreRole());
-            let currentNumberOfCommoners = this.getNumberOfPlayersWithRole(newRoles, roles.getDefaultRole());
+            let currentNumberOfWolves = this.getNumberOfPlayersWithRole(roles.getWolfRole(), newRoles);
+            let currentNumberOfGuards = this.getNumberOfPlayersWithRole(roles.getGuardRole(), newRoles);
+            let currentNumberOfWhores = this.getNumberOfPlayersWithRole(roles.getWhoreRole(), newRoles);
+            let currentNumberOfCommoners = this.getNumberOfPlayersWithRole(roles.getDefaultRole(), newRoles);
 
             this.addRoles(maxNumberOfWolves - currentNumberOfWolves, remainingRolesToAssign, roles.getWolfRole());
             this.addRoles(maxNumberOfGuard - currentNumberOfGuards, remainingRolesToAssign, roles.getGuardRole());
@@ -262,9 +259,9 @@ class Game extends Component {
         this.setState({ playerRoles: newRoles });
     }
 
-    // TODO refactor (non passare playersRoles)?
-    getNumberOfPlayersWithRole(playersRoles, roleToGet) {
-        return playersRoles.filter(role => role === roleToGet).length;
+    getNumberOfPlayersWithRole(roleToGet, currentRoles) {
+        currentRoles = currentRoles === undefined ? this.state.playerRoles : currentRoles;
+        return currentRoles.filter(role => role === roleToGet).length;
     }
 
     addRoles(numberOfTimesToAdd, remainingRolesToAssign, role) {
@@ -288,7 +285,6 @@ class Game extends Component {
         let alivePlayers = this.state.playerNames;
         this.setState({alivePlayers: alivePlayers});
 
-        //this.goToFirstNightPhase(alivePlayers);
         this.goToNextPhase(alivePlayers);
     }
 
@@ -485,9 +481,6 @@ class Game extends Component {
         let whore = this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWhoreRole())[0];
         let wolves = this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWolfRole());
 
-        /*if (whore !== undefined)
-            whore = whore[0];*/
-
         if (victims.includes(whore)) {
             this.setState({ wolvesKills: [] });
             return false;
@@ -538,8 +531,6 @@ class Game extends Component {
             this.setErrorMessage('Select a player!');
             return false;
         }
-
-        // TODO refactor?
 
         this.goToNextPhase(this.state.alivePlayers);
     }
