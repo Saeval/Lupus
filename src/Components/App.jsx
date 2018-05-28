@@ -57,6 +57,7 @@ class Game extends Component {
         const maxNumberOfPlayers = 12;
         const headerTitle = 'Welcome to Lupus in Fabula!';
         let currentPhase = this.state.currentPhase;
+        let roles = this.state.roles;
 
         let returnValue;
 
@@ -92,7 +93,7 @@ class Game extends Component {
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
                 confirmSelection={this.confirmGuardSelection}
-                handleChoice={this.isGuardPlaying() ? this.handleGuardChoice : this.goToNextPhase}
+                handleChoice={this.isRolePlaying(roles.getGuardRole()) ? this.handleGuardChoice : this.goToNextPhase}
                 specialRole={this.state.roles.getGuardRole()}
                 aliveMessage={'pick someone to protect'}
                 key={'Guard'}
@@ -104,7 +105,7 @@ class Game extends Component {
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
                 confirmSelection={this.confirmWhoreSelection}
-                handleChoice={this.isWhorePlaying() ? this.handleWhoreChoice : this.goToNextPhase}
+                handleChoice={this.isRolePlaying(roles.getWhoreRole()) ? this.handleWhoreChoice : this.goToNextPhase}
                 specialRole={this.state.roles.getWhoreRole()}
                 aliveMessage={'pick someone to have fun with tonight'}
                 key={'Whore'}
@@ -141,20 +142,22 @@ class Game extends Component {
 
     goToNextPhase(alivePlayers) {
         let currentPhase = this.state.currentPhase;
+        const guard = this.state.roles.getGuardRole();
+        const whore = this.state.roles.getWhoreRole();
 
         if (currentPhase === 0)
             this.setState({currentPhase: 1});
 
-        else if (currentPhase === 1 && this.isGuardPlaying())
+        else if (currentPhase === 1 && this.isRolePlaying(guard))
             this.setState({currentPhase: 1.1});
 
-        else if (currentPhase === 1 && this.isWhorePlaying())
+        else if (currentPhase === 1 && this.isRolePlaying(whore))
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 1)
             this.setState({currentPhase: 2});
 
-        else if (currentPhase === 1.1 && this.isWhorePlaying())
+        else if (currentPhase === 1.1 && this.isRolePlaying(whore))
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 1.1)
@@ -169,10 +172,10 @@ class Game extends Component {
         else if (currentPhase === 3 && this.gameEnded(alivePlayers))
             this.setState({currentPhase: 4});
 
-        else if (currentPhase === 3 && this.isGuardPlaying())
+        else if (currentPhase === 3 && this.isRolePlaying(guard))
             this.setState({currentPhase: 1.1});
 
-        else if (currentPhase === 3 && this.isWhorePlaying())
+        else if (currentPhase === 3 && this.isRolePlaying(whore))
             this.setState({currentPhase: 1.2});
 
         else if (currentPhase === 3)
@@ -186,14 +189,10 @@ class Game extends Component {
             this.setState({currentPhase: currentPhase - 1});
     }
 
-    isGuardPlaying() {
-        return this.getNumberOfPlayersWithRole(this.state.roles.getGuardRole()) > 0;
+    isRolePlaying(role) {
+        return this.getNumberOfPlayersWithRole(role) > 0;
     }
-
-    isWhorePlaying() {
-        return this.getNumberOfPlayersWithRole(this.state.roles.getWhoreRole()) > 0;
-    }
-
+    
     resetError(){
         //console.log(`Resetting error`);
         this.setState({
