@@ -10,11 +10,11 @@ class NightSpecialCharacterScreen extends Component {
     }
 
     getName() {
-        console.log(`[getName][alivePlayers]: ${this.props.alivePlayers}`);
+        //console.log(`[getName][alivePlayers]: ${this.props.alivePlayers}`);
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
             if (this.props.playerRoles[i] === this.props.specialRole) {
-                console.log(`[NightGuardPhaseScreen][getName]: ${this.props.playerNames[i]}`);
+                console.log(`[NightGuardPhaseScreen][getName]${this.props.specialRole}: ${this.props.playerNames[i]}`);
                 return this.props.playerNames[i];
             }
     }
@@ -33,6 +33,11 @@ class NightSpecialCharacterScreen extends Component {
             </select>;
 
         return result;
+    }
+
+    componentWillMount(){
+        if (!this.props.isAlive)
+            this.props.handleChoice();
     }
 
     render() {

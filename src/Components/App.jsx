@@ -90,6 +90,7 @@ class Game extends Component {
         else if (currentPhase === 1.1)
             returnValue = <NightSpecialCharacterScreen
                 alivePlayers={this.state.alivePlayers}
+                isAlive={this.isRolePlaying(roles.getGuardRole())}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
                 confirmSelection={this.confirmGuardSelection}
@@ -102,6 +103,7 @@ class Game extends Component {
         else if (currentPhase === 1.2)
             returnValue = <NightSpecialCharacterScreen
                 alivePlayers={this.state.alivePlayers}
+                isAlive={this.isRolePlaying(roles.getWhoreRole())}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
                 confirmSelection={this.confirmWhoreSelection}
@@ -145,41 +147,51 @@ class Game extends Component {
         const guard = this.state.roles.getGuardRole();
         const whore = this.state.roles.getWhoreRole();
 
-        if (currentPhase === 0)
-            this.setState({currentPhase: 1});
+        if (currentPhase === 0) {
+             this.setState({currentPhase: 1});
+             console.log("Set phase to 1")
+        }
 
-        else if (currentPhase === 1 && this.isRolePlaying(guard))
+        else if (currentPhase === 1) {
             this.setState({currentPhase: 1.1});
+            console.log("Set phase to 1.1")
+        }
 
-        else if (currentPhase === 1 && this.isRolePlaying(whore))
+
+        else if (currentPhase === 1.1) {
             this.setState({currentPhase: 1.2});
+            console.log("Set phase to 1.2")
+        }
 
-        else if (currentPhase === 1)
+        else if (currentPhase === 1.2) {
             this.setState({currentPhase: 2});
+            console.log("Set phase to 2")
+        }
 
-        else if (currentPhase === 1.1 && this.isRolePlaying(whore))
-            this.setState({currentPhase: 1.2});
-
-        else if (currentPhase === 1.1)
-            this.setState({currentPhase: 2});
-
-        else if (currentPhase === 1.2)
-            this.setState({currentPhase: 2});
-
-        else if (currentPhase === 2)
+        else if (currentPhase === 2) {
             this.setState({currentPhase: 3});
+            console.log("Set phase to 3")
+        }
 
-        else if (currentPhase === 3 && this.gameEnded(alivePlayers))
+        else if (currentPhase === 3 && this.gameEnded(alivePlayers)) {
             this.setState({currentPhase: 4});
+            console.log("Set phase to 4")
+        }
 
-        else if (currentPhase === 3 && this.isRolePlaying(guard))
+        else if (currentPhase === 3 && this.isRolePlaying(guard)) {
             this.setState({currentPhase: 1.1});
+            console.log("Set phase to 1.1")
+        }
 
-        else if (currentPhase === 3 && this.isRolePlaying(whore))
+        else if (currentPhase === 3 && this.isRolePlaying(whore)) {
             this.setState({currentPhase: 1.2});
+            console.log("Set phase to 1.2")
+        }
 
-        else if (currentPhase === 3)
+        else if (currentPhase === 3) {
             this.setState({currentPhase: 2});
+            console.log("Set phase to 2")
+        }
     }
 
     goToPreviousPhase() {
@@ -304,7 +316,10 @@ class Game extends Component {
             newVictims.push(event.target.value);
 
         if (this.state.currentPhase === 2)
-            this.setState({wolvesKills: newVictims });
+            this.setState({
+                wolvesKills: newVictims,
+                commonersKill: ''
+            });
         else if (this.state.currentPhase === 3) {
             this.setState({
                 commonersKill: event.target.value,
@@ -546,7 +561,7 @@ class Game extends Component {
             return false;
         }
 
-        this.setState({currentPhase: 2});
+        this.goToNextPhase(this.state.alivePlayers);
     }
 
     wolvesHaveWon(alivePlayers) {

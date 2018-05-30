@@ -119,11 +119,12 @@ describe('NightWolvesPhaseScreen item', () => {
 });
 
 describe('NightSpecialCharacterScreen item', () => {
-    let screen = mount(<NightSpecialCharacterScreen
+    let screen = shallow(<NightSpecialCharacterScreen
         alivePlayers={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
         playerNames={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
         playerRoles={['Commoner', 'Commoner', 'Commoner', 'Wolf', 'Guard']}
         specialRole={'Guard'}
+        isAlive={true}
     />);
 
     it('should not contain guard in select', () => {
@@ -283,7 +284,6 @@ describe('Game item', () => {
         AssertElementIsVisible(game.find('ErrorScreen'));
         AssertErrorScreenTextContains(game, 'victim');
         AssertErrorScreenTextContains(game, 'valid');
-
         game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
 
         AssertElementIsVisible(getNightWolvesPhaseScreen(game));
@@ -298,6 +298,36 @@ describe('Game item', () => {
         expect(getNightWolvesPhaseScreen(game).find('option').at(0).text()).to.equal('--');
         ClickConfirmWolvesKill(game);
 
+        AssertElementIsVisible(game.find('ErrorScreen'));
+    });
+
+    it('should not let commoners select first (empty) option', () => {
+        let game = mount(<Game />);
+
+        goToNightWolvesPhaseScreen(game);
+
+        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertElementIsVisible(getDayPhaseScreen(game));
+        ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'victim');
+        AssertErrorScreenTextContains(game, 'valid');
+        game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
+
+        AssertElementIsVisible(getDayPhaseScreen(game));
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
+        ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertElementIsVisible(getDayPhaseScreen(game));
+        ClickConfirmCommonersKill(game);
         AssertElementIsVisible(game.find('ErrorScreen'));
     });
 
