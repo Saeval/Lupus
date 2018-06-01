@@ -124,7 +124,7 @@ describe('NightSpecialCharacterScreen item', () => {
         playerNames={['Nome1', 'Nome2', 'Nome3', 'Nome4', 'Nome5']}
         playerRoles={['Commoner', 'Commoner', 'Commoner', 'Wolf', 'Guard']}
         specialRole={'Guard'}
-        isAlive={true}
+        isPlaying={true}
     />);
 
     it('should not contain guard in select', () => {
@@ -219,6 +219,7 @@ describe('Game item', () => {
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
         AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'All players');
         AssertErrorScreenTextContains(game, 'name');
 
         game.find('ErrorScreen').find('BackToSelectionButton').simulate('click');
@@ -230,6 +231,7 @@ describe('Game item', () => {
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
         AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'All players');
         AssertErrorScreenTextContains(game, 'name');
     });
 
@@ -251,8 +253,8 @@ describe('Game item', () => {
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
         AssertElementIsVisible(game.find('ErrorScreen'));
-        AssertErrorScreenTextContains(game, 'nome');
-        AssertErrorScreenTextContains(game, 'unico');
+        AssertErrorScreenTextContains(game, 'name');
+        AssertErrorScreenTextContains(game, 'unique');
     });
 
     it('should be able to assign roles randomly', () => {

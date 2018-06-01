@@ -48,6 +48,11 @@ class DayPhaseScreen extends Component {
             'But the show must go on! Discuss about who you think did it and pick someone to lynch!';
     }
 
+    componentWillMount() {
+        if (this.props.gameEnded)
+            this.props.handleCommonersChoice();
+    }
+
     render() {
       return (
         <div className="col-xs-12 col-xs-offset-3">
