@@ -384,7 +384,7 @@ class Game extends Component {
 
     isNumberOfWolvesAcceptable(){
         let wolves = 0;
-        const maxNumberOfWolves = Math.round(this.state.selectedNumberOfPlayers / 3);
+        const maxNumberOfWolves = this.state.roles.getMaxNumberOfWolvesGivenPlayers(this.state.selectedNumberOfPlayers);
 
         for(let i = 0; i < this.state.selectedNumberOfPlayers; i++) {
             if (this.state.playerRoles[i] === this.state.roles.getRoleByName('wolf'))
@@ -588,10 +588,10 @@ class Game extends Component {
     isUndefinedOrEmpty(object) {
         //console.log(`[isUndefinedOrEmpty]: [${object}]`);
         return object === undefined ||
-                object === null ||
-                object === '' ||
-                object === [] ||
-                object.length === 0;
+               object === null ||
+               object === '' ||
+               object === [] ||
+               object.length === 0;
     }
 
 
