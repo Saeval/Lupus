@@ -384,7 +384,7 @@ class Game extends Component {
 
     isNumberOfWolvesAcceptable(){
         let wolves = 0;
-        const maxNumberOfWolves = this.state.roles.getMaxNumberOfWolvesGivenPlayers(this.state.selectedNumberOfPlayers);
+        const maxNumberOfWolves = Math.round(this.state.selectedNumberOfPlayers / 3);
 
         for(let i = 0; i < this.state.selectedNumberOfPlayers; i++) {
             if (this.state.playerRoles[i] === this.state.roles.getRoleByName('wolf'))
