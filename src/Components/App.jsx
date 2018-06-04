@@ -150,6 +150,7 @@ class Game extends Component {
 
     goToNextPhase() {
         let currentPhase = this.state.currentPhase;
+        const allPhases = this.state.phases.getPhases();
         const guardPhase = this.state.phases.getGuardPhase();
         const dayPhase = this.state.phases.getDayPhase();
 
@@ -158,12 +159,17 @@ class Game extends Component {
             return;
         }
 
-        this.setState({currentPhase: currentPhase + 1});
+        let currentPhaseIndex = this.state.phases.getIndexByCurrentPhase(currentPhase);
+        this.setState({currentPhase: allPhases[currentPhaseIndex + 1]});
     }
 
     goToPreviousPhase() {
         let currentPhase = this.state.currentPhase;
-        this.setState({currentPhase: currentPhase - 1});
+
+        let newPhase = this.state.phases.getPhases()[currentPhase - 1];
+        console.log("[goToPreviousPhase] Setting new phase: " + newPhase);
+
+        this.setState({currentPhase: newPhase});
     }
 
     isRolePlaying(role) {
@@ -448,7 +454,7 @@ class Game extends Component {
     }
 
     doVictimsDie(victims){
-        //console.log(`areVictimsValid: chosen victim ${victim}`);
+        //console.log(`areVictimsValid: chosen victims ${victims}`);
 
         // TODO ampliare quando ci saranno altri ruoli
 
