@@ -9,6 +9,7 @@ import DayPhaseScreen from "./DayPhaseScreen"
 import EndGame from "./EndGame";
 import NightSpecialCharacterScreen from "./NightSpecialCharacterScreen";
 import Phases from "./Phases";
+import NightSeerScreen from "./NightSeerScreen";
 //import './fonts/glyphicons-halflings-regular.eot';
 
 class Game extends Component {
@@ -25,10 +26,12 @@ class Game extends Component {
         this.confirmKillSelection = this.confirmKillSelection.bind(this);
         this.handleWolvesChoice = this.handleWolvesChoice.bind(this);
         this.handleCommonersChoice = this.handleCommonersChoice.bind(this);
-        this.confirmGuardSelection = this.confirmGuardSelection.bind(this);
-        this.handleGuardChoice = this.handleGuardChoice.bind(this);
-        this.confirmWhoreSelection= this.confirmWhoreSelection.bind(this);
-        this.handleWhoreChoice = this.handleWhoreChoice.bind(this);
+        this.handleGuardSelection = this.handleGuardSelection.bind(this);
+        this.confirmGuardChoice = this.confirmGuardChoice.bind(this);
+        this.handleWhoreSelection= this.handleWhoreSelection.bind(this);
+        this.confirmWhoreChoice = this.confirmWhoreChoice.bind(this);
+        this.handleSeerSelection= this.handleSeerSelection.bind(this);
+        this.confirmSeerChoice = this.confirmSeerChoice.bind(this);
         this.setRandomRoles = this.setRandomRoles.bind(this);
     }
 
@@ -49,7 +52,9 @@ class Game extends Component {
             commonersKill: '',
             guardedPlayer: '',
             escortedPlayer: '',
-            winnerMessage: ''
+            winnerMessage: '',
+            seerChoice: '',
+            seerMessage: ''
         };
 
         this.setUpHandlers();
@@ -98,8 +103,8 @@ class Game extends Component {
                 isPlaying={this.isRolePlaying(roles.getGuardRole())}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
-                confirmSelection={this.confirmGuardSelection}
-                handleChoice={this.isRolePlaying(roles.getGuardRole()) ? this.handleGuardChoice : this.goToNextPhase}
+                handleSelection={this.handleGuardSelection}
+                confirmChoice={this.isRolePlaying(roles.getGuardRole()) ? this.confirmGuardChoice : this.goToNextPhase}
                 specialRole={this.state.roles.getGuardRole()}
                 aliveMessage={'pick someone to protect'}
                 key={'Guard'}
@@ -111,11 +116,25 @@ class Game extends Component {
                 isPlaying={this.isRolePlaying(roles.getWhoreRole())}
                 playerNames={this.state.playerNames}
                 playerRoles={this.state.playerRoles}
-                confirmSelection={this.confirmWhoreSelection}
-                handleChoice={this.isRolePlaying(roles.getWhoreRole()) ? this.handleWhoreChoice : this.goToNextPhase}
+                handleSelection={this.handleWhoreSelection}
+                confirmChoice={this.isRolePlaying(roles.getWhoreRole()) ? this.confirmWhoreChoice : this.goToNextPhase}
                 specialRole={this.state.roles.getWhoreRole()}
                 aliveMessage={'pick someone to have fun with tonight'}
                 key={'Whore'}
+            />;
+
+        else if (currentPhase === phases.getSeerPhase())
+            returnValue = <NightSeerScreen
+                alivePlayers={this.state.alivePlayers}
+                isPlaying={this.isRolePlaying(roles.getSeerRole())}
+                playerNames={this.state.playerNames}
+                playerRoles={this.state.playerRoles}
+                handleSelection={this.handleSeerSelection}
+                continueAction={this.goToNextPhase}
+                key={this.state.seerMessage}
+                confirmChoice={this.confirmSeerChoice}
+                supplementMessage={this.state.seerMessage}
+                choice={this.state.seerChoice}
             />;
 
         else if (currentPhase === phases.getWolvesPhase())
@@ -169,7 +188,7 @@ class Game extends Component {
     isRolePlaying(role) {
         return this.getNumberOfPlayersWithRole(role) > 0;
     }
-    
+
     resetError(){
         //console.log(`Resetting error`);
         this.setState({
@@ -291,7 +310,9 @@ class Game extends Component {
                 commonersKill: event.target.value,
                 wolvesKills: [],
                 guardedPlayer: '',
-                escortedPlayer: ''
+                escortedPlayer: '',
+                seerMessage: '',
+                seerChoice: ''
             });
     }
 
@@ -499,12 +520,12 @@ class Game extends Component {
         this.setState({currentPhase: this.state.phases.getEndGamePhase()});
     }
 
-    confirmGuardSelection(event) {
-        //console.log(`[confirmGuardSelection][guardedPlayer]: ${event.target.value}`);
+    handleGuardSelection(event) {
+        console.log(`[handleGuardSelection][guardedPlayer]: ${event.target.value}`);
         this.setState({guardedPlayer: event.target.value});
     }
 
-    handleGuardChoice() {
+    confirmGuardChoice() {
         if (this.isUndefinedOrEmpty(this.state.guardedPlayer) &&
         this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getGuardRole()).length > 0) {
             this.setErrorMessage('Select a player!');
@@ -514,12 +535,12 @@ class Game extends Component {
         this.goToNextPhase();
     }
 
-    confirmWhoreSelection(event) {
-        //console.log(`[confirmWhoreSelection][escortedPlayer]: ${event.target.value}`);
+    handleWhoreSelection(event) {
+        //console.log(`[handleWhoreSelection][escortedPlayer]: ${event.target.value}`);
         this.setState({escortedPlayer: event.target.value});
     }
 
-    handleWhoreChoice() {
+    confirmWhoreChoice() {
         if (this.isUndefinedOrEmpty(this.state.escortedPlayer) &&
         this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWhoreRole()).length > 0) {
             this.setErrorMessage('Select a player!');
@@ -527,6 +548,24 @@ class Game extends Component {
         }
 
         this.goToNextPhase();
+    }
+
+    confirmSeerChoice() {
+        if (this.isUndefinedOrEmpty(this.state.seerChoice) &&
+        this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getSeerRole()).length > 0) {
+            this.setErrorMessage('Select a player!');
+            return false;
+        }
+
+        let chosenIsWolf = this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWolfRole())
+                                .includes(this.state.seerChoice);
+
+        //console.log('ChosenIsWolf: ' + chosenIsWolf);
+        this.setState({ seerMessage: chosenIsWolf });
+    }
+
+    handleSeerSelection(event) {
+        this.setState({seerChoice: event.target.value});
     }
 
     wolvesHaveWon(alivePlayers) {
@@ -553,12 +592,17 @@ class Game extends Component {
     }
 
     getCommonersSide(alivePlayers) {
+        // TODO Ampliare questa, se serve, ogni volta che si aggiunge un ruolo
+
         const commonerRole = this.state.roles.getDefaultRole();
         const guardRole = this.state.roles.getGuardRole();
         const whoreRole = this.state.roles.getWhoreRole();
+        const seerRole = this.state.roles.getSeerRole();
+
         return this.getAlivePlayersByRole(alivePlayers, commonerRole)
                    .concat(this.getAlivePlayersByRole(alivePlayers, guardRole))
-                   .concat(this.getAlivePlayersByRole(alivePlayers, whoreRole));
+                   .concat(this.getAlivePlayersByRole(alivePlayers, whoreRole))
+                   .concat(this.getAlivePlayersByRole(alivePlayers, seerRole));
     }
 
     commonersHaveWon(alivePlayers) {
@@ -588,10 +632,10 @@ class Game extends Component {
     isUndefinedOrEmpty(object) {
         //console.log(`[isUndefinedOrEmpty]: [${object}]`);
         return object === undefined ||
-                object === null ||
-                object === '' ||
-                object === [] ||
-                object.length === 0;
+               object === null ||
+               object === '' ||
+               object === [] ||
+               object.length === 0;
     }
 
 

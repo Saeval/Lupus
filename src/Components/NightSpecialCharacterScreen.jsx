@@ -27,7 +27,7 @@ class NightSpecialCharacterScreen extends Component {
         let players = this.props.alivePlayers.filter(player => player !== this.state.specialCharacterName);
 
         let result =
-            <select className='field text-select-width' onChange={this.props.confirmSelection}>
+            <select className='field text-select-width' onChange={this.props.handleSelection}>
                 <option key={'-1'} value=''>--</option>
                 {players.map(name => <option key={name} value={name}>{name}</option>)}
             </select>;
@@ -37,7 +37,7 @@ class NightSpecialCharacterScreen extends Component {
 
     componentWillMount(){
         if (!this.props.isPlaying)
-            this.props.handleChoice();
+            this.props.confirmChoice();
     }
 
     render() {
@@ -61,9 +61,9 @@ class NightSpecialCharacterScreen extends Component {
               }
               <div className={this.isSpecialCharacterAlive() ? "col-xs-2 col-xs-offset-2" : "col-xs-2"}>
                   <button className="col-xs-5 btn btn-primary top-margin right-margin"
-                          onClick={this.props.handleChoice}
+                          onClick={this.props.confirmChoice}
                           style={buttonStyle}>
-                      Conferma
+                      Confirm
                   </button>
               </div>
           </div>

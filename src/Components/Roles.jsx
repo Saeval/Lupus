@@ -8,7 +8,8 @@ class Roles extends Component {
                 'Commoner',
                 'Wolf',
                 'Guard',
-                'Whore'
+                'Whore',
+                'Seer'
             ]
         };
     }
@@ -31,6 +32,10 @@ class Roles extends Component {
 
     getWhoreRole() {
         return this.state.roles.find(role => role === 'Whore');
+    }
+
+    getSeerRole() {
+        return this.state.roles.find(role => role === 'Seer');
     }
 
     getRoleByName(roleName){

@@ -18,7 +18,7 @@ class PlayerNamesScreen extends Component {
         for (let i = 0; i < this.props.selectedNumberOfPlayers; i++) {
             playerNames[i] =
                 <div key={"label-input-container-" + i}>
-                    <label key={"label-" + i}>Nome giocatore {i + 1}</label>
+                    <label key={"label-" + i}>Player name {i + 1}</label>
                     <input type="text"
                            key={i}
                            id={"name-" + i}
@@ -72,7 +72,7 @@ class PlayerNamesScreen extends Component {
                 <div className="col-xs-4 col-xs-offset-2">
                     <button className="col-xs-5 btn btn-primary top-margin right-margin confirm-players-button"
                             onClick={this.props.handlePlayerDataConfirm}>
-                        Conferma
+                        Confirm
                     </button>
                 </div>
                 <div className="col-xs-4">

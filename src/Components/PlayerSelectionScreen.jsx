@@ -22,7 +22,7 @@ class PlayerSelectionScreen extends Component {
         return (
             <div className="col-xs-12">
                 <div className="big-text col-xs-3 col-xs-offset-4">
-                    Quanti sono i giocatori?
+                    How many players are there?
                     <select
                         id="numberOfPlayers"
                         className="left-margin numeric-select-width"
@@ -31,7 +31,7 @@ class PlayerSelectionScreen extends Component {
                         {this.buildOptions(this.props.maxPlayers)}
                     </select>
                 </div>
-                <button className="btn btn-primary col-xs-1" onClick={this.props.handleNumberOfPlayersConfirm}>Conferma</button>
+                <button className="btn btn-primary col-xs-1" onClick={this.props.handleNumberOfPlayersConfirm}>Confirm</button>
             </div>
         )
     }
