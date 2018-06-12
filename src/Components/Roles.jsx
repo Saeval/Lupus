@@ -46,22 +46,27 @@ class Roles extends Component {
       return 'Role not existing';
     }
 
-    getMaxNumberOfWolvesGivenPlayers(numberOfPlayers) {
-        return Math.floor(numberOfPlayers / 3);
+    getMaxNumberOfWolves(numberOfPlayers) {
+        return numberOfPlayers === 6 ? 1 : Math.floor(numberOfPlayers / 3);
     }
 
-    getMaxNumberOfGuards() {
-        return 1;
+    getMaxNumberOfGuards(numberOfPlayers) {
+        return numberOfPlayers > 5 ? 1 : 0;
     }
 
-    getMaxNumberOfWhores() {
-        return 1;
+    getMaxNumberOfWhores(numberOfPlayers) {
+        return numberOfPlayers > 6 ? 1 : 0;
+    }
+
+    getMaxNumberOfSeers(numberOfPlayers) {
+        return numberOfPlayers > 7 ? 1 : 0;
     }
 
     getMaxNumberOfCommoners(numberOfPlayers) {
-        return numberOfPlayers - this.getMaxNumberOfWolvesGivenPlayers(numberOfPlayers)
-                               - this.getMaxNumberOfGuards()
-                               - this.getMaxNumberOfWhores();
+        return numberOfPlayers - this.getMaxNumberOfWolves(numberOfPlayers)
+                               - this.getMaxNumberOfGuards(numberOfPlayers)
+                               - this.getMaxNumberOfWhores(numberOfPlayers)
+                               - this.getMaxNumberOfSeers(numberOfPlayers);
     }
 }
 

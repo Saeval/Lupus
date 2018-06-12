@@ -13,11 +13,11 @@ class NightSeerScreen extends Component {
     }
 
     getName() {
-        console.log(`[getName][alivePlayers]: ${this.props.alivePlayers}`);
+        //console.log(`[getName][alivePlayers]: ${this.props.alivePlayers}`);
 
         for(let i = 0; i < this.props.playerRoles.length; i++)
             if (this.props.playerRoles[i] === new Roles().getSeerRole()) {
-                console.log(`[NightSeerScreen][getName]: ${this.props.playerNames[i]}`);
+                //console.log(`[NightSeerScreen][getName]: ${this.props.playerNames[i]}`);
                 return this.props.playerNames[i];
             }
     }
@@ -47,12 +47,11 @@ class NightSeerScreen extends Component {
         //console.log('NightSeerScreen render');
         //console.log(this.props);
         let character = this.state.specialCharacterName;
+        let isConfirmChoiceButtonDisabled = this.state.hasYetToChoose && this.state.isAlive;
 
         let buttonStyle = this.state.isAlive ?
             {marginLeft: '22em', width: '80%'}:
             {width: '80%'};
-
-        let isConfirmChoiceButtonDisabled = this.state.hasYetToChoose && this.state.isAlive;
 
         return (
             <div className="col-xs-12 col-xs-offset-3">

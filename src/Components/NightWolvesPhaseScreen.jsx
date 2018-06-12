@@ -62,7 +62,7 @@ class NightWolvesPhaseScreen extends Component {
                   <button className="col-xs-5 btn btn-primary top-margin right-margin"
                           onClick={this.props.handleWolvesChoice}
                           style={{marginLeft: '22em', width: '80%'}}>
-                      Conferma
+                      Confirm
                   </button>
               </div>
           </div>

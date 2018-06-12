@@ -130,25 +130,6 @@ describe('NightSpecialCharacterScreen item', () => {
     });
 });
 
-describe('NightSeerScreen item', () => {
-    let screen = shallow(<NightSeerScreen
-        alivePlayers={['Manuel', 'Claudio', 'Alberto', 'SAW', 'Bonny', 'Doctor']}
-        isPlaying={true}
-        playerNames={['Manuel', 'Claudio', 'Alberto', 'SAW', 'Bonny', 'Doctor']}
-        playerRoles={['Commoner', 'Commoner', 'Seer', 'Wolf', 'Commoner', 'Wolf']}
-    />);
-
-    it('should not contain seer in select', () => {
-        expect(screen.find('option').length).to.equal(5 + 1);
-        expect(screen.find('option').at(0).text()).to.equal('--');
-        expect(screen.find('option').at(1).text()).to.equal('Manuel');
-        expect(screen.find('option').at(2).text()).to.equal('Claudio');
-        expect(screen.find('option').at(3).text()).to.equal('SAW');
-        expect(screen.find('option').at(4).text()).to.equal('Bonny');
-        expect(screen.find('option').at(5).text()).to.equal('Doctor');
-    });
-});
-
 describe('DayPhaseScreen item', () => {
     let screen = mount(<DayPhaseScreen
                             wolvesKills={['Dead']}
@@ -165,6 +146,25 @@ describe('DayPhaseScreen item', () => {
         expect(screen.find('option').at(1).text()).to.equal('Nome1');
         expect(screen.find('option').at(2).text()).to.equal('Nome2');
         expect(screen.find('option').at(3).text()).to.equal('Nome3');
+    });
+});
+
+describe('NightSeerScreen item', () => {
+    let screen = shallow(<NightSeerScreen
+        alivePlayers={['Manuel', 'Claudio', 'Alberto', 'SAW', 'Bonny', 'Doctor']}
+        isPlaying={true}
+        playerNames={['Manuel', 'Claudio', 'Alberto', 'SAW', 'Bonny', 'Doctor']}
+        playerRoles={['Commoner', 'Commoner', 'Seer', 'Wolf', 'Commoner', 'Wolf']}
+    />);
+
+    it('should not contain seer in select', () => {
+        expect(screen.find('option').length).to.equal(5 + 1);
+        expect(screen.find('option').at(0).text()).to.equal('--');
+        expect(screen.find('option').at(1).text()).to.equal('Manuel');
+        expect(screen.find('option').at(2).text()).to.equal('Claudio');
+        expect(screen.find('option').at(3).text()).to.equal('SAW');
+        expect(screen.find('option').at(4).text()).to.equal('Bonny');
+        expect(screen.find('option').at(5).text()).to.equal('Doctor');
     });
 });
 
@@ -260,7 +260,6 @@ describe('Game item', () => {
         changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
         changeElementSettingState(playerNamesScreen.find('#name-5'), 'SAW', 'blur');
         changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
-        changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
 
         playerNamesScreen.find('.confirm-players-button').simulate('click');
 
@@ -269,7 +268,7 @@ describe('Game item', () => {
         AssertErrorScreenTextContains(game, 'unique');
     });
 
-    it('should be able to assign roles randomly', () => {
+    it('should be able to assign roles randomly - 6 players', () => {
         let game = mount(<Game />);
         let numberOfPlayers = 6;
 
@@ -281,10 +280,49 @@ describe('Game item', () => {
         playerNamesScreen.find('.btn-info').simulate('click');
 
         AssertArrayContains(game.state('playerRoles'), ['Commoner', 'Wolf', 'Guard']);
+        expect(game.state('playerRoles').filter(role => role === 'Commoner').length).to.equal(4);
+        expect(game.state('playerRoles').filter(role => role === 'Wolf').length).to.equal(1);
+        expect(game.state('playerRoles').filter(role => role === 'Guard').length).to.equal(1);
+        expect(game.state('playerRoles').filter(role => role === 'Whore').length).to.equal(0);
+        expect(game.state('playerRoles').filter(role => role === 'Seer').length).to.equal(0);
+    });
+
+    it('should be able to assign roles randomly - 7 players', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 7;
+
+        let playerNamesScreen = goToPlayerNamesScreen(game, numberOfPlayers);
+
+        AssertArrayContains(game.state('playerRoles'), ['Commoner']);
+        AssertArrayNotContains(game.state('playerRoles'), ['Wolf', 'Guard']);
+
+        playerNamesScreen.find('.btn-info').simulate('click');
+
+        AssertArrayContains(game.state('playerRoles'), ['Commoner', 'Wolf', 'Guard', 'Whore']);
+        expect(game.state('playerRoles').filter(role => role === 'Commoner').length).to.equal(3);
         expect(game.state('playerRoles').filter(role => role === 'Wolf').length).to.equal(2);
         expect(game.state('playerRoles').filter(role => role === 'Guard').length).to.equal(1);
         expect(game.state('playerRoles').filter(role => role === 'Whore').length).to.equal(1);
-        expect(game.state('playerRoles').filter(role => role === 'Commoner').length).to.equal(2);
+        expect(game.state('playerRoles').filter(role => role === 'Seer').length).to.equal(0);
+    });
+
+    it('should be able to assign roles randomly - 8 players', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 8;
+
+        let playerNamesScreen = goToPlayerNamesScreen(game, numberOfPlayers);
+
+        AssertArrayContains(game.state('playerRoles'), ['Commoner']);
+        AssertArrayNotContains(game.state('playerRoles'), ['Wolf', 'Guard']);
+
+        playerNamesScreen.find('.btn-info').simulate('click');
+
+        AssertArrayContains(game.state('playerRoles'), ['Commoner', 'Wolf', 'Guard', 'Whore', 'Seer']);
+        expect(game.state('playerRoles').filter(role => role === 'Commoner').length).to.equal(3);
+        expect(game.state('playerRoles').filter(role => role === 'Wolf').length).to.equal(2);
+        expect(game.state('playerRoles').filter(role => role === 'Guard').length).to.equal(1);
+        expect(game.state('playerRoles').filter(role => role === 'Whore').length).to.equal(1);
+        expect(game.state('playerRoles').filter(role => role === 'Seer').length).to.equal(1);
     });
 
     it('should not let wolves select first (empty) option', () => {
@@ -387,7 +425,7 @@ describe('Game item', () => {
 
         const alivePlayers = game.state('alivePlayers');
 
-        AssertArrayContains(alivePlayers, ['Manuel', 'Claudio', 'SAW', 'Alberto', 'Doctor', 'Bonny']);
+        AssertArrayContains(alivePlayers, ['Manuel', 'Claudio', 'SAW', 'Alberto', 'Doctor', 'Bonny', 'Mikey']);
 
         const wolvesScreen = getNightWolvesPhaseScreen(game);
         const wolves = [];
@@ -396,13 +434,14 @@ describe('Game item', () => {
                 wolves.push(alivePlayers[i]);
 
         AssertArrayContains(wolves, ['SAW', 'Doctor']);
-        AssertArrayNotContains(wolves, ['Manuel', 'Claudio', 'Alberto', 'Bonny']);
-        expect(wolvesScreen.find('option').length).to.equal(4 + 1);
+        AssertArrayNotContains(wolves, ['Manuel', 'Claudio', 'Alberto', 'Bonny', 'Mikey']);
+        expect(wolvesScreen.find('option').length).to.equal(5 + 1);
         expect(wolvesScreen.find('option').at(0).text()).to.equal('--');
         expect(wolvesScreen.find('option').at(1).text()).to.equal('Manuel');
         expect(wolvesScreen.find('option').at(2).text()).to.equal('Claudio');
         expect(wolvesScreen.find('option').at(3).text()).to.equal('Alberto');
         expect(wolvesScreen.find('option').at(4).text()).to.equal('Bonny');
+        expect(wolvesScreen.find('option').at(5).text()).to.equal('Mikey');
     });
 
     it('should not show dead players between possible commoners victims', () => {
@@ -413,15 +452,16 @@ describe('Game item', () => {
         const alivePlayers = game.state('alivePlayers');
         const dayScreen = getDayPhaseScreen(game);
 
-        AssertArrayContains(alivePlayers, ['Manuel', 'SAW', 'Alberto', 'Doctor', 'Bonny']);
+        AssertArrayContains(alivePlayers, ['Manuel', 'SAW', 'Alberto', 'Doctor', 'Bonny', 'Mikey']);
         AssertArrayNotContains(alivePlayers, ['Claudio']);
-        expect(dayScreen.find('option').length).to.equal(5 + 1);
+        expect(dayScreen.find('option').length).to.equal(6 + 1);
         expect(dayScreen.find('option').at(0).text()).to.equal('--');
         expect(dayScreen.find('option').at(1).text()).to.equal('Manuel');
         expect(dayScreen.find('option').at(2).text()).to.equal('SAW');
         expect(dayScreen.find('option').at(3).text()).to.equal('Alberto');
         expect(dayScreen.find('option').at(4).text()).to.equal('Doctor');
         expect(dayScreen.find('option').at(5).text()).to.equal('Bonny');
+        expect(dayScreen.find('option').at(6).text()).to.equal('Mikey');
     });
 
     it('should end the game when there are as many commoners as wolves', () => {
@@ -429,15 +469,18 @@ describe('Game item', () => {
 
         goToFirstDayScreen(game);
 
-        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'SAW', 'Alberto', 'Doctor', 'Bonny']);
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'SAW', 'Alberto', 'Doctor', 'Bonny', 'Mikey']);
         AssertArrayNotContains(game.state('alivePlayers'), ['Claudio']);
 
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Bonny', 'change');
         ClickConfirmCommonersKill(game);
 
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Mikey', 'change');
+        ClickConfirmWolvesKill(game);
+
         expect(game.state('alivePlayers').length).to.equal(4);
         AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'SAW', 'Alberto', 'Doctor']);
-        AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'Bonny']);
+        AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'Bonny', 'Mikey']);
 
         AssertElementIsVisible(game.find('EndGame'));
         AssertEndGameScreenContains(game, 'Wolves');
@@ -457,9 +500,18 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Bonny', 'change');
         ClickConfirmCommonersKill(game);
 
-        expect(game.state('alivePlayers').length).to.equal(4);
-        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'SAW', 'Alberto', 'Doctor']);
-        AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'Bonny']);
+        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmSpecialCharacterChoice(game);
+
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Doctor', 'change');
+        ClickConfirmWolvesKill(game);
+
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Manuel', 'change');
+        ClickConfirmCommonersKill(game);
+
+        expect(game.state('alivePlayers').length).to.equal(2);
+        AssertArrayContains(game.state('alivePlayers'), ['SAW', 'Alberto']);
+        AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'Bonny', 'Doctor', 'Manuel', ]);
 
         AssertElementIsVisible(game.find('EndGame'));
         AssertEndGameScreenContains(game, 'Wolves');
@@ -566,15 +618,6 @@ describe('Game item', () => {
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
         ClickConfirmCommonersKill(game);
 
-        changeElementSettingState(getNightSpecialCharacterScreen(game).find('select'), 'Claudio', 'change');
-        ClickConfirmSpecialCharacterChoice(game);
-
-        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
-        ClickConfirmWolvesKill(game);
-
-        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
-        ClickConfirmCommonersKill(game);
-
         AssertElementIsVisible(game.find('EndGame'));
         AssertEndGameScreenContains(game, 'Commoners');
         AssertEndGameScreenContains(game, 'won');
@@ -594,6 +637,30 @@ describe('Game item', () => {
         AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Alberto', 'Claudio', 'SAW', 'Doctor', 'Bonny']);
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
         ClickConfirmCommonersKill(game);
+
+        AssertElementIsVisible(game.find('EndGame'));
+        AssertEndGameScreenContains(game, 'Commoners');
+        AssertEndGameScreenContains(game, 'won');
+    });
+
+    it('should end the game when there are no more wolves, with seer', () => {
+        let game = mount(<Game />);
+
+        goToNightSeerScreen(game);
+
+        changeElementSettingState(getNightSeerPhaseScreen(game).find('select'), 'Claudio', 'change');
+        ClickSeerChoiseButton(game);
+        ClickSeerContinueButton(game);
+
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        ClickConfirmWolvesKill(game);
+
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'SAW', 'change');
+        ClickConfirmCommonersKill(game);
+
+        expect(game.state('alivePlayers').length).to.equal(4);
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Alberto', 'Doctor', 'Bonny']);
+        AssertArrayNotContains(game.state('alivePlayers'), ['Claudio', 'SAW']);
 
         AssertElementIsVisible(game.find('EndGame'));
         AssertEndGameScreenContains(game, 'Commoners');
@@ -642,6 +709,28 @@ describe('Game item', () => {
         AssertElementIsVisible(game.find('ErrorScreen'));
         AssertErrorScreenTextContains(game, 'Only a player');
         AssertErrorScreenTextContains(game, 'whore');
+    });
+
+    it('should not let more than one player have the Seer role', () => {
+        let game = mount(<Game />);
+        let numberOfPlayers = 6;
+
+        let playerNamesScreen = goToPlayerNamesScreen(game, numberOfPlayers);
+
+        changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
+        changeElementSettingState(playerNamesScreen.find('#role-0'), 'Seer', 'change');
+        changeElementSettingState(playerNamesScreen.find('#role-1'), 'Seer', 'change');
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+        AssertElementIsVisible(game.find('ErrorScreen'));
+        AssertErrorScreenTextContains(game, 'Only a player');
+        AssertErrorScreenTextContains(game, 'seer');
     });
 
     it('guard should protect from wolves kill', () => {
@@ -737,7 +826,7 @@ describe('Game item', () => {
 
         AssertElementIsVisible(getDayPhaseScreen(game));
         AssertDayPhaseScreenContains(game, 'Nobody died');
-        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Alberto', 'Michael', 'SAW', 'Claudio', 'Doctor', 'Bonny']);
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Alberto', 'Mikey', 'SAW', 'Claudio', 'Doctor', 'Bonny']);
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmCommonersKill(game);
 
@@ -759,7 +848,7 @@ describe('Game item', () => {
         changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Bonny', 'change');
         ClickConfirmWolvesKill(game);
 
-        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Michael', 'SAW', 'Claudio', 'Doctor']);
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Mikey', 'SAW', 'Claudio', 'Doctor']);
         AssertArrayNotContains(game.state('alivePlayers'), ['Bonny', 'Alberto']);
         changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Doctor', 'change');
         ClickConfirmCommonersKill(game);
@@ -834,12 +923,6 @@ describe('Game item', () => {
         expect(getNightSeerPhaseScreen(game).find('div.col-xs-4').text()).to.contain('Seer Doctor');
         expect(getNightSeerPhaseScreen(game).find('div.col-xs-4').text()).to.contain('dead');
         AssertElementDoesNotExist(getNightSeerPhaseScreen(game).find('select'));
-        expect(getNightSeerPhaseScreen(game).find('.btn .btn-primary').props().className).to.not.contain('disabled');
-        expect(getNightSeerPhaseScreen(game).find('.btn .btn-success').props().className).to.contain('disabled');
-
-        ClickSeerContinueButton(game);
-
-        AssertElementIsVisible(getNightWolvesPhaseScreen(game));
     });
 });
 
@@ -863,7 +946,7 @@ function changeElementSettingState(elementWrapper, valueToInsert, eventToTrigger
 }
 
 function goToNightWolvesPhaseScreen(game) {
-    let playerNamesScreen = goToPlayerNamesScreen(game, 6);
+    let playerNamesScreen = goToPlayerNamesScreen(game, 7);
 
     AssertElementIsVisible(playerNamesScreen);
 
@@ -873,6 +956,7 @@ function goToNightWolvesPhaseScreen(game) {
     changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Mikey', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
 
@@ -910,7 +994,7 @@ function goToNightGuardPhaseScreen(game) {
     changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
-    changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
+    //changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-3'), 'Guard', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
@@ -926,7 +1010,6 @@ function goToNightWhorePhaseScreen(game) {
     changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
-    //changeElementSettingState(playerNamesScreen.find('#role-4'), 'Wolf', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-3'), 'Whore', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
@@ -941,10 +1024,27 @@ function goToNightGuardPhaseScreen_WithWhore(game) {
     changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Michael', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Mikey', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-5'), 'Guard', 'change');
     changeElementSettingState(playerNamesScreen.find('#role-3'), 'Whore', 'change');
+
+    playerNamesScreen.find('.confirm-players-button').simulate('click');
+}
+
+function goToNightSeerPhaseScreen(game) {
+    let playerNamesScreen = goToPlayerNamesScreen(game, 7);
+
+    changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Mikey', 'blur');
+    changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-5'), 'Guard', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-3'), 'Seer', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
 }

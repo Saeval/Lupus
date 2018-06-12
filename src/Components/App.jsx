@@ -225,9 +225,10 @@ class Game extends Component {
         let newRoles = this.state.playerRoles;
         const numberOfPlayers = this.state.selectedNumberOfPlayers;
 
-        const maxNumberOfWolves = roles.getMaxNumberOfWolvesGivenPlayers(numberOfPlayers);
-        const maxNumberOfGuard = roles.getMaxNumberOfGuards();
-        const maxNumberOfWhores = roles.getMaxNumberOfWhores();
+        const maxNumberOfWolves = roles.getMaxNumberOfWolves(numberOfPlayers);
+        const maxNumberOfGuard = roles.getMaxNumberOfGuards(numberOfPlayers);
+        const maxNumberOfWhores = roles.getMaxNumberOfWhores(numberOfPlayers);
+        const maxNumberOfSeers = roles.getMaxNumberOfSeers(numberOfPlayers);
         const maxNumberOfCommoners = roles.getMaxNumberOfCommoners(numberOfPlayers);
 
         this.removeDefaultCommonerRole(newRoles);
@@ -241,11 +242,13 @@ class Game extends Component {
             let currentNumberOfGuards = this.getNumberOfPlayersWithRole(roles.getGuardRole(), newRoles);
             let currentNumberOfWhores = this.getNumberOfPlayersWithRole(roles.getWhoreRole(), newRoles);
             let currentNumberOfCommoners = this.getNumberOfPlayersWithRole(roles.getDefaultRole(), newRoles);
+            let currentNumberOfSeers = this.getNumberOfPlayersWithRole(roles.getSeerRole(), newRoles);
 
             this.addRoles(maxNumberOfWolves - currentNumberOfWolves, remainingRolesToAssign, roles.getWolfRole());
             this.addRoles(maxNumberOfGuard - currentNumberOfGuards, remainingRolesToAssign, roles.getGuardRole());
             this.addRoles(maxNumberOfWhores - currentNumberOfWhores, remainingRolesToAssign, roles.getWhoreRole());
             this.addRoles(maxNumberOfCommoners - currentNumberOfCommoners, remainingRolesToAssign, roles.getDefaultRole());
+            this.addRoles(maxNumberOfSeers - currentNumberOfSeers, remainingRolesToAssign, roles.getSeerRole());
 
             newRoles[i] = remainingRolesToAssign[Math.floor(Math.random() * remainingRolesToAssign.length)];
         }
@@ -255,7 +258,10 @@ class Game extends Component {
     }
 
     getNumberOfPlayersWithRole(roleToGet, currentRoles) {
-        currentRoles = currentRoles === undefined ? this.state.playerRoles : currentRoles;
+        currentRoles = currentRoles === undefined ?
+                        this.state.playerRoles :
+                        currentRoles;
+
         return currentRoles.filter(role => role === roleToGet).length;
     }
 
@@ -405,7 +411,7 @@ class Game extends Component {
 
     isNumberOfWolvesAcceptable(){
         let wolves = 0;
-        const maxNumberOfWolves = this.state.roles.getMaxNumberOfWolvesGivenPlayers(this.state.selectedNumberOfPlayers);
+        const maxNumberOfWolves = this.state.roles.getMaxNumberOfWolves(this.state.selectedNumberOfPlayers);
 
         for(let i = 0; i < this.state.selectedNumberOfPlayers; i++) {
             if (this.state.playerRoles[i] === this.state.roles.getRoleByName('wolf'))
@@ -444,6 +450,7 @@ class Game extends Component {
     uniqueRolesAreReallyUnique() {
         let guards = this.getAlivePlayersByRole(this.state.playerNames, this.state.roles.getGuardRole()).length;
         let whores = this.getAlivePlayersByRole(this.state.playerNames, this.state.roles.getWhoreRole()).length;
+        let seers = this.getAlivePlayersByRole(this.state.playerNames, this.state.roles.getSeerRole()).length;
 
         if (guards > 1) {
             this.setErrorMessage(`Only a player can play as the ${this.state.roles.getGuardRole().toLowerCase()}!`);
@@ -452,6 +459,11 @@ class Game extends Component {
 
         if (whores > 1) {
             this.setErrorMessage(`Only a player can play as the ${this.state.roles.getWhoreRole().toLowerCase()}!`);
+            return false;
+        }
+
+        if (seers > 1) {
+            this.setErrorMessage(`Only a player can play as the ${this.state.roles.getSeerRole().toLowerCase()}!`);
             return false;
         }
 
@@ -521,7 +533,7 @@ class Game extends Component {
     }
 
     handleGuardSelection(event) {
-        console.log(`[handleGuardSelection][guardedPlayer]: ${event.target.value}`);
+        //console.log(`[handleGuardSelection][guardedPlayer]: ${event.target.value}`);
         this.setState({guardedPlayer: event.target.value});
     }
 
@@ -557,10 +569,8 @@ class Game extends Component {
             return false;
         }
 
-        let chosenIsWolf = this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWolfRole())
-                                .includes(this.state.seerChoice);
+        let chosenIsWolf = this.getAlivePlayersByRole(this.state.alivePlayers, this.state.roles.getWolfRole()).includes(this.state.seerChoice);
 
-        //console.log('ChosenIsWolf: ' + chosenIsWolf);
         this.setState({ seerMessage: chosenIsWolf });
     }
 
