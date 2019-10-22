@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
 
+const commonerRole = 'Commoner';
+const wolfRole = 'Wolf';
+const guardRole = 'Guard';
+const whoreRole = 'Whore';
+const seerRole = 'Seer';
+const possessedRole = 'Possessed';
+
 class Roles extends Component {
     constructor(){
         super();
         this.state = {
             roles: [
-                'Commoner',
-                'Wolf',
-                'Guard',
-                'Whore',
-                'Seer'
+                commonerRole,
+                wolfRole,
+                guardRole,
+                whoreRole,
+                seerRole,
+                possessedRole
             ]
         };
     }
@@ -19,23 +27,27 @@ class Roles extends Component {
     }
 
     getDefaultRole() {
-        return this.state.roles.find(role => role === 'Commoner');
+        return this.state.roles.find(role => role === commonerRole);
     }
 
     getWolfRole() {
-        return this.state.roles.find(role => role === 'Wolf');
+        return this.state.roles.find(role => role === wolfRole);
     }
 
     getGuardRole() {
-        return this.state.roles.find(role => role === 'Guard');
+        return this.state.roles.find(role => role === guardRole);
     }
 
     getWhoreRole() {
-        return this.state.roles.find(role => role === 'Whore');
+        return this.state.roles.find(role => role === whoreRole);
     }
 
     getSeerRole() {
-        return this.state.roles.find(role => role === 'Seer');
+        return this.state.roles.find(role => role === seerRole);
+    }
+
+    getPossessedRole() {
+        return this.state.roles.find(role => role === possessedRole);
     }
 
     getRoleByName(roleName){
@@ -62,10 +74,15 @@ class Roles extends Component {
         return numberOfPlayers > 7 ? 1 : 0;
     }
 
+    getMaxNumberOfPossessed(numberOfPlayers) {
+        return numberOfPlayers > 8 ? 1 : 0;
+    }
+
     getMaxNumberOfCommoners(numberOfPlayers) {
         return numberOfPlayers - this.getMaxNumberOfWolves(numberOfPlayers)
                                - this.getMaxNumberOfGuards(numberOfPlayers)
                                - this.getMaxNumberOfWhores(numberOfPlayers)
+                               - this.getMaxNumberOfPossessed(numberOfPlayers)
                                - this.getMaxNumberOfSeers(numberOfPlayers);
     }
 }

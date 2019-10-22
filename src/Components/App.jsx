@@ -58,8 +58,6 @@ class Game extends Component {
         };
 
         this.setUpHandlers();
-
-
     }
 
     render() {
@@ -157,7 +155,10 @@ class Game extends Component {
         }
 
         else if (currentPhase === phases.getEndGamePhase())
-            returnValue = <EndGame message={this.state.winnerMessage}/>;
+            returnValue = <EndGame message={this.state.winnerMessage}
+                                   alivePlayers={this.state.alivePlayers}
+                                   allPlayers={this.state.playerNames}
+                                   roles={this.state.playerRoles}/>;
 
         return (
             <div className="col-xs-12">
@@ -230,6 +231,7 @@ class Game extends Component {
         const maxNumberOfWhores = roles.getMaxNumberOfWhores(numberOfPlayers);
         const maxNumberOfSeers = roles.getMaxNumberOfSeers(numberOfPlayers);
         const maxNumberOfCommoners = roles.getMaxNumberOfCommoners(numberOfPlayers);
+        const maxNumberOfPossessed = roles.getMaxNumberOfPossessed(numberOfPlayers);
 
         this.removeDefaultCommonerRole(newRoles);
 
@@ -243,12 +245,14 @@ class Game extends Component {
             let currentNumberOfWhores = this.getNumberOfPlayersWithRole(roles.getWhoreRole(), newRoles);
             let currentNumberOfCommoners = this.getNumberOfPlayersWithRole(roles.getDefaultRole(), newRoles);
             let currentNumberOfSeers = this.getNumberOfPlayersWithRole(roles.getSeerRole(), newRoles);
+            let currentNumberOfPossessed = this.getNumberOfPlayersWithRole(roles.getPossessedRole(), newRoles);
 
             this.addRoles(maxNumberOfWolves - currentNumberOfWolves, remainingRolesToAssign, roles.getWolfRole());
             this.addRoles(maxNumberOfGuard - currentNumberOfGuards, remainingRolesToAssign, roles.getGuardRole());
             this.addRoles(maxNumberOfWhores - currentNumberOfWhores, remainingRolesToAssign, roles.getWhoreRole());
             this.addRoles(maxNumberOfCommoners - currentNumberOfCommoners, remainingRolesToAssign, roles.getDefaultRole());
             this.addRoles(maxNumberOfSeers - currentNumberOfSeers, remainingRolesToAssign, roles.getSeerRole());
+            this.addRoles(maxNumberOfPossessed - currentNumberOfPossessed, remainingRolesToAssign, roles.getPossessedRole());
 
             newRoles[i] = remainingRolesToAssign[Math.floor(Math.random() * remainingRolesToAssign.length)];
         }
@@ -579,10 +583,7 @@ class Game extends Component {
     }
 
     wolvesHaveWon(alivePlayers) {
-        const wolfRole = this.state.roles.getRoleByName('wolf');
-        let wolves = this.getAlivePlayersByRole(alivePlayers, wolfRole);
-
-        // Filtrare per alivePlayers - wolves, per qualche motivo, non funziona
+        let wolves = this.getWolvesSide(alivePlayers);
         let commoners = this.getCommonersSide(alivePlayers);
 
         //console.log(`Wolves: ${wolves}`);
@@ -608,16 +609,25 @@ class Game extends Component {
         const guardRole = this.state.roles.getGuardRole();
         const whoreRole = this.state.roles.getWhoreRole();
         const seerRole = this.state.roles.getSeerRole();
+        const possessedRole = this.state.roles.getPossessedRole();
 
         return this.getAlivePlayersByRole(alivePlayers, commonerRole)
                    .concat(this.getAlivePlayersByRole(alivePlayers, guardRole))
                    .concat(this.getAlivePlayersByRole(alivePlayers, whoreRole))
+                   .concat(this.getAlivePlayersByRole(alivePlayers, possessedRole))
                    .concat(this.getAlivePlayersByRole(alivePlayers, seerRole));
     }
 
+    getWolvesSide(alivePlayers) {
+        // TODO Ampliare questa, se serve, ogni volta che si aggiunge un ruolo
+
+        const wolfRole = this.state.roles.getWolfRole();
+
+        return this.getAlivePlayersByRole(alivePlayers, wolfRole);
+    }
+
     commonersHaveWon(alivePlayers) {
-        const commonerRole = this.state.roles.getDefaultRole();
-        let goodGuys = this.getCommonersSide(alivePlayers, commonerRole);
+        let goodGuys = this.getCommonersSide(alivePlayers);
 
         //console.log(`[commonersHaveWon][goodGuys]: ${goodGuys}`);
 

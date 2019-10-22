@@ -579,6 +579,42 @@ describe('Game item', () => {
         AssertEndGameScreenContains(game, 'Wolves');
     });
 
+    it('should count Possessed on Commoner faction', () => {
+        let game = mount(<Game />);
+        let playerNamesScreen = goToPlayerNamesScreen(game, 7);
+
+        changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#name-6'), 'Demogorgon', 'blur');
+        changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
+        changeElementSettingState(playerNamesScreen.find('#role-6'), 'Wolf', 'change');
+        changeElementSettingState(playerNamesScreen.find('#role-4'), 'Possessed', 'change');
+
+        playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+        AssertWolvesNightPhaseScreenContains(game, 'Wolves SAW, Demogorgon');
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Bonny', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertDayPhaseScreenContains(game, 'Bonny died');
+        changeElementSettingState(getDayPhaseScreen(game).find('select'), 'Alberto', 'change');
+        ClickConfirmCommonersKill(game);
+
+        AssertWolvesNightPhaseScreenContains(game, 'Wolves SAW, Demogorgon');
+        changeElementSettingState(getNightWolvesPhaseScreen(game).find('select'), 'Claudio', 'change');
+        ClickConfirmWolvesKill(game);
+
+        AssertArrayContains(game.state('alivePlayers'), ['Manuel', 'Doctor', 'SAW', 'Demogorgon']);
+        AssertArrayNotContains(game.state('alivePlayers'), ['Bonny', 'Alberto', 'Claudio']);
+
+        AssertEndGameScreenContains(game, 'Wolves');
+        AssertEndGameScreenContains(game, 'won');
+    });
+
     it('should end the game when there are no more wolves', () => {
         let game = mount(<Game />);
 
@@ -965,25 +1001,6 @@ function goToNightWolvesPhaseScreen(game) {
     AssertElementIsVisible(getNightWolvesPhaseScreen(game));
 }
 
-function goToNightSeerScreen(game) {
-    let playerNamesScreen = goToPlayerNamesScreen(game, 6);
-
-    AssertElementIsVisible(playerNamesScreen);
-
-    changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-2'), 'SAW', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
-    changeElementSettingState(playerNamesScreen.find('#role-4'), 'Seer', 'change');
-
-    playerNamesScreen.find('.confirm-players-button').simulate('click');
-
-    AssertElementIsVisible(getNightSeerPhaseScreen(game));
-}
-
 function goToNightGuardPhaseScreen(game) {
     let playerNamesScreen = goToPlayerNamesScreen(game, 6);
 
@@ -1032,8 +1049,10 @@ function goToNightGuardPhaseScreen_WithWhore(game) {
     playerNamesScreen.find('.confirm-players-button').simulate('click');
 }
 
-function goToNightSeerPhaseScreen(game) {
-    let playerNamesScreen = goToPlayerNamesScreen(game, 7);
+function goToNightSeerScreen(game) {
+    let playerNamesScreen = goToPlayerNamesScreen(game, 6);
+
+    AssertElementIsVisible(playerNamesScreen);
 
     changeElementSettingState(playerNamesScreen.find('#name-0'), 'Manuel', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-1'), 'Claudio', 'blur');
@@ -1041,12 +1060,12 @@ function goToNightSeerPhaseScreen(game) {
     changeElementSettingState(playerNamesScreen.find('#name-3'), 'Alberto', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-4'), 'Doctor', 'blur');
     changeElementSettingState(playerNamesScreen.find('#name-5'), 'Bonny', 'blur');
-    changeElementSettingState(playerNamesScreen.find('#name-6'), 'Mikey', 'blur');
     changeElementSettingState(playerNamesScreen.find('#role-2'), 'Wolf', 'change');
-    changeElementSettingState(playerNamesScreen.find('#role-5'), 'Guard', 'change');
-    changeElementSettingState(playerNamesScreen.find('#role-3'), 'Seer', 'change');
+    changeElementSettingState(playerNamesScreen.find('#role-4'), 'Seer', 'change');
 
     playerNamesScreen.find('.confirm-players-button').simulate('click');
+
+    AssertElementIsVisible(getNightSeerPhaseScreen(game));
 }
 
 function goToFirstDayScreen(game) {
@@ -1107,7 +1126,7 @@ function AssertDayPhaseScreenContains(game, message) {
 }
 
 function AssertEndGameScreenContains(game, message) {
-    expect(game.find('EndGame').find('div').text()).to.contain(message);
+    expect(game.find('EndGame').find('div.jumbotron').text()).to.contain(message);
 }
 
 function AssertErrorScreenTextContains(game, message) {
